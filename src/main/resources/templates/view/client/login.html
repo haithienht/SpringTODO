@@ -28,27 +28,31 @@
          </div>
          <!-- /.login-logo -->
          <div class="card">
-            <div class="card-body login-card-body">
-               <p class="login-box-msg">Sign in to start your session</p>
+            <div class="card-body">
+               <div id="commonError" class="alert alert-danger" style="display: none;">
 
+               </div>
                <form id="frmLogin" th:action="@{/login}" method="post" th:object="${user}">
+
                   <div class="input-group mb-3">
-                     <input type="email" class="form-control" placeholder="Email" th:field="*{email}"
-                        data-toggle="tooltip" data-placement="right">
-                     <div class="input-group-append">
-                        <div class="input-group-text">
-                           <span class="fas fa-envelope"></span>
+                     <div class="input-group-prepend">
+                        <div class="input-group-text text-primary">
+                           <i class="fas fa-envelope"></i>
                         </div>
                      </div>
+                     <input type="text" class="form-control" placeholder="Email" th:field="*{email}"
+                        data-toggle="tooltip" data-placement="right">
+
                   </div>
                   <div class="input-group mb-3">
-                     <input type="password" class="form-control" placeholder="Password" th:field="*{password}"
-                        data-toggle="tooltip" data-placement="right">
-                     <div class="input-group-append">
-                        <div class="input-group-text">
+                     <div class="input-group-prepend">
+                        <div class="input-group-text text-primary">
                            <span class="fas fa-lock"></span>
                         </div>
                      </div>
+                     <input type="password" class="form-control" placeholder="Password" th:field="*{password}"
+                        data-toggle="tooltip" data-placement="right">
+
                   </div>
                   <div class="row">
                      <div class="col-8">
@@ -61,7 +65,7 @@
                      </div>
                      <!-- /.col -->
                      <div class="col-4">
-                        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+                        <button type="submit" class="btn btn-outline-primary btn-block">Sign In</button>
                      </div>
                      <!-- /.col -->
                   </div>
@@ -69,7 +73,7 @@
 
                <div class="social-auth-links text-center mb-3">
                   <p>- OR -</p>
-                  <a href="#" class="btn btn-block btn-danger">
+                  <a href="#" class="btn btn-block btn-outline-primary">
                      <i class="fab fa-google mr-2"></i> Sign in using Google
                   </a>
                </div>
@@ -91,6 +95,8 @@
 
       <!-- jQuery -->
       <script th:src="@{/admin/plugins/jquery/jquery.min.js}"></script>
+      <script th:src="@{/admin/plugins/jquery-validation/jquery.validate.min.js}"></script>
+      <script th:src="@{/admin/plugins/jquery-validation/additional-methods.min.js}"></script>
       <!-- Bootstrap 4 -->
       <script th:src="@{/admin/plugins/popper/umd/popper.min.js}"></script>
       <script th:src="@{/admin/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
@@ -98,56 +104,180 @@
       <script th:src="@{/admin/js/adminlte.min.js}"></script>
 
       <script>
-         $("#frmLogin").on("submit", (event) => {
-            event.preventDefault();
-            $("input").each((i, e) => {
-               if ($(e).hasClass("is-invalid")) {
-                  $(e).removeClass("is-invalid");
+         $.validator.methods.email = function (value, element) {
+            return this.optional(element) || /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test(value);
+         }
+         function injectTrim(handler) {
+            return function (element, event) {
+               if (element.tagName === "TEXTAREA" || (element.tagName === "INPUT"
+                  && element.type !== "password")) {
+                  element.value = $.trim(element.value);
                }
-               if (!$(e).hasClass("is-valid")) {
-                  $(e).addClass("is-valid");
-               }
-               $(e).attr("data-original-title", "");
+               return handler.call(this, element, event);
+            };
+         }
+
+         function trimAll() {
+            $("form").find("input, textarea").each(function (i, e) {
+               $(e).val($(e).val().trim());
             });
-            var form = $("#frmLogin");
-            // var formData = $(this).serialize();
-            console.log(form.serialize());
-            $.ajax({
-               url: form.attr("action"),
-               data: form.serialize(),
-               method: "post",
-               error: (result) => {
-                  $("input[type=password]").val("");
-                  console.log(result);
-                  console.log(result.responseJSON);
-                  result.responseJSON.errors.forEach(item => {
-                     var input = $("#" + item.field);
-                     if (!input.hasClass("is-invalid")) {
-                        input.addClass("is-invalid");
-                     }
-                     if (input.attr("data-original-title") == "") {
-                        input.attr("data-original-title", item.defaultMessage);
-                     } else {
-                        input.attr("data-original-title", input.attr("data-original-title") + "\n" + item.defaultMessage);
-                     }
+         }
 
-                  });
+         $("#frmLogin").validate({
+            ignore: [],
+            rules: {
+               email: {
+                  required: true,
+                  email: true,
+                  maxlength: 200
+               },
+               password: {
+                  required: true,
+                  minlength: 5,
+                  maxlength: 200
+               }
+            },
+            errorClass: "is-invalid",
+            validClass: "is-valid",
+            errorPlacement: function (error, element) {
+               element.attr("data-original-title", $(error).html());
+               // error.appendTo('#' + element.attr("id") + "Error");
+            },
+            highlight: function (element, errorClass, validClass) {
+               var elem = $(element);
+               elem.addClass(errorClass);
+               elem.removeClass(validClass);
+               elem.tooltip("show");
+            },
 
-                  $("input[type=password]").removeClass("is-valid");
-                  $('[data-toggle="tooltip"]').tooltip('show');
-               },
-               success: (result) => {
-                  $("input[type=password]").val("");
-                  console.log(result);
-               },
-            })
-            // .done((result) => {
-            //   console.log(result);
-            // }).fail((result) => {
-            //   console.log(result.responseJSON);
-            //   console.log(result);
-            // })
+            unhighlight: function (element, errorClass, validClass) {
+               var elem = $(element);
+               elem.removeClass(errorClass);
+               elem.addClass(validClass);
+               elem.attr("data-original-title", "");
+               elem.tooltip("hide");
+            },
+            errorElement: "li",
+            submitHandler: function (form, event) {
+               trimAll();
+               event.preventDefault();
+               $("input").each((i, e) => {
+                  $(e).removeClass("is-invalid");
+                  $(e).removeClass("is-valid");
+                  $(e).attr("data-original-title", "");
+               });
+               $("#commonError").css("display", "none");
+               $("#commonError").html("");
+               if ($("#frmLogin").valid()) {
+                  var formData = $(form).serialize();
+                  $("input").prop("disabled", true);
+                  $.ajax({
+                     url: $(form).attr("action"),
+                     data: formData,
+                     method: "post",
+                     error: (result) => {
+                        $("input[type=password]").val("");
+                        // console.log(result);
+                        console.log(result.responseJSON);
+                        result.responseJSON.errors.forEach(item => {
+                           var input = $("#" + item.field);
+                           if (!input.hasClass("is-invalid")) {
+                              input.addClass("is-invalid");
+                           }
+                           if (input.attr("data-original-title") == "") {
+                              input.attr("data-original-title", item.defaultMessage);
+                           } else {
+                              input.attr("data-original-title", input.attr("data-original-title") + "\n" + item.defaultMessage);
+                           }
+                        });
+                        $("input").prop("disabled", null);
+                        // $("input[type=password]").removeClass("is-valid");
+                        // $('[data-toggle="tooltip"]').tooltip('show');
+                     },
+                     success: (result) => {
+                        console.log(result)
+                        $("input[type=password]").val("");
+                        if (result.length) {
+                           $("#commonError").css("display", null);
+                           $("#commonError").css("display", "block");
+                           var errorMsg = "<ul>";
+                           result.forEach(element => {
+                              errorMsg += "<li>" + element.defaultMessage + "</li>";
+                           });
+                           errorMsg += "</ul>";
+                           $("#commonError").html(errorMsg);
+                           $("input").prop("disabled", null);
+                        } else {
+                           console.log("success");
+
+                        }
+
+                     },
+                  })
+               }
+
+
+            },
+            // callback: function () {
+
+            //     var form = $("#frmCategory");
+            //     if (form.valid()) {
+            //         form.submit();
+            //     } else {
+            //         return false;
+            //     }
+            // },
+            onfocusout: injectTrim($.validator.defaults.onfocusout),
+            complete: function (data) {
+
+            }
          });
+
+         // $("#frmLogin").on("submit", (event) => {
+         //    event.preventDefault();
+         //    $("input").each((i, e) => {
+         //       if ($(e).hasClass("is-invalid")) {
+         //          $(e).removeClass("is-invalid");
+         //       }
+         //       if (!$(e).hasClass("is-valid")) {
+         //          $(e).addClass("is-valid");
+         //       }
+         //       $(e).attr("data-original-title", "");
+         //    });
+
+         //    var form = $("#frmLogin");
+         //    // var formData = $(this).serialize();
+         //    console.log(form.serialize());
+         //    $.ajax({
+         //       url: form.attr("action"),
+         //       data: form.serialize(),
+         //       method: "post",
+         //       error: (result) => {
+         //          $("input[type=password]").val("");
+         //          console.log(result);
+         //          console.log(result.responseJSON);
+         //          result.responseJSON.errors.forEach(item => {
+         //             var input = $("#" + item.field);
+         //             if (!input.hasClass("is-invalid")) {
+         //                input.addClass("is-invalid");
+         //             }
+         //             if (input.attr("data-original-title") == "") {
+         //                input.attr("data-original-title", item.defaultMessage);
+         //             } else {
+         //                input.attr("data-original-title", input.attr("data-original-title") + "\n" + item.defaultMessage);
+         //             }
+
+         //          });
+
+         //          $("input[type=password]").removeClass("is-valid");
+         //          $('[data-toggle="tooltip"]').tooltip('show');
+         //       },
+         //       success: (result) => {
+         //          $("input[type=password]").val("");
+         //          console.log(result);
+         //       },
+         //    })
+         // });
 
          $(() => {
             $('[data-toggle="tooltip"]').tooltip();
