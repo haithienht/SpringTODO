@@ -11,6 +11,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table(name = "user")
@@ -28,7 +30,6 @@ public class User {
 	private Date birthday;
 
 	@Column(name = "email", length = 200, nullable = false)
-	@Email
 	private String email;
 
 	@Column(name = "password", length = 200, nullable = false)
