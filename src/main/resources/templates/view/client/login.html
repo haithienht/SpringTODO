@@ -10,13 +10,13 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
 
       <!-- Font Awesome -->
-      <link rel="stylesheet" th:href="@{/admin/plugins/fontawesome-free/css/all.min.css}">
+      <link rel="stylesheet" th:href="@{/resources/admin/plugins/fontawesome-free/css/all.min.css}">
       <!-- Ionicons -->
       <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
       <!-- icheck bootstrap -->
-      <link rel="stylesheet" th:href="@{/admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css}">
+      <link rel="stylesheet" th:href="@{/resources/admin/plugins/icheck-bootstrap/icheck-bootstrap.min.css}">
       <!-- Theme style -->
-      <link rel="stylesheet" th:href="@{/admin/css/adminlte.min.css}">
+      <link rel="stylesheet" th:href="@{/resources/admin/css/adminlte.min.css}">
       <!-- Google Font: Source Sans Pro -->
       <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
    </head>
@@ -29,10 +29,10 @@
          <!-- /.login-logo -->
          <div class="card">
             <div class="card-body">
-               <div id="commonError" class="alert alert-danger" style="display: none;">
-
+               <div id="commonError" class="alert alert-danger" th:style="${param.error != null? '' : 'display:none'}">
+                  Invalid login information. Please check again.
                </div>
-               <form id="frmLogin" th:action="@{/login}" method="post" th:object="${user}">
+               <form id="frmLogin" th:action="@{/doLogin}" method="post" th:object="${user}">
 
                   <div class="input-group mb-3">
                      <div class="input-group-prepend">
@@ -94,14 +94,14 @@
       <!-- /.login-box -->
 
       <!-- jQuery -->
-      <script th:src="@{/admin/plugins/jquery/jquery.min.js}"></script>
-      <script th:src="@{/admin/plugins/jquery-validation/jquery.validate.min.js}"></script>
-      <script th:src="@{/admin/plugins/jquery-validation/additional-methods.min.js}"></script>
+      <script th:src="@{/resources/admin/plugins/jquery/jquery.min.js}"></script>
+      <script th:src="@{/resources/admin/plugins/jquery-validation/jquery.validate.min.js}"></script>
+      <script th:src="@{/resources/admin/plugins/jquery-validation/additional-methods.min.js}"></script>
       <!-- Bootstrap 4 -->
-      <script th:src="@{/admin/plugins/popper/umd/popper.min.js}"></script>
-      <script th:src="@{/admin/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+      <script th:src="@{/resources/admin/plugins/popper/umd/popper.min.js}"></script>
+      <script th:src="@{/resources/admin/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
       <!-- AdminLTE App -->
-      <script th:src="@{/admin/js/adminlte.min.js}"></script>
+      <script th:src="@{/resources/admin/js/adminlte.min.js}"></script>
 
       <script>
          $.validator.methods.email = function (value, element) {
@@ -160,7 +160,7 @@
             errorElement: "li",
             submitHandler: function (form, event) {
                trimAll();
-               event.preventDefault();
+               // event.preventDefault();
                $("input").each((i, e) => {
                   $(e).removeClass("is-invalid");
                   $(e).removeClass("is-valid");
@@ -169,51 +169,52 @@
                $("#commonError").css("display", "none");
                $("#commonError").html("");
                if ($("#frmLogin").valid()) {
-                  var formData = $(form).serialize();
-                  $("input").prop("disabled", true);
-                  $.ajax({
-                     url: $(form).attr("action"),
-                     data: formData,
-                     method: "post",
-                     error: (result) => {
-                        $("input[type=password]").val("");
-                        // console.log(result);
-                        console.log(result.responseJSON);
-                        result.responseJSON.errors.forEach(item => {
-                           var input = $("#" + item.field);
-                           if (!input.hasClass("is-invalid")) {
-                              input.addClass("is-invalid");
-                           }
-                           if (input.attr("data-original-title") == "") {
-                              input.attr("data-original-title", item.defaultMessage);
-                           } else {
-                              input.attr("data-original-title", input.attr("data-original-title") + "\n" + item.defaultMessage);
-                           }
-                        });
-                        $("input").prop("disabled", null);
-                        // $("input[type=password]").removeClass("is-valid");
-                        // $('[data-toggle="tooltip"]').tooltip('show');
-                     },
-                     success: (result) => {
-                        console.log(result)
-                        $("input[type=password]").val("");
-                        if (result.length) {
-                           $("#commonError").css("display", null);
-                           $("#commonError").css("display", "block");
-                           var errorMsg = "<ul>";
-                           result.forEach(element => {
-                              errorMsg += "<li>" + element.defaultMessage + "</li>";
-                           });
-                           errorMsg += "</ul>";
-                           $("#commonError").html(errorMsg);
-                           $("input").prop("disabled", null);
-                        } else {
-                           console.log("success");
+                  form.submit();
+                  // var formData = $(form).serialize();
+                  // $("input").prop("disabled", true);
+                  // $.ajax({
+                  //    url: $(form).attr("action"),
+                  //    data: formData,
+                  //    type: "post",
+                  //    error: (result) => {
+                  //       $("input[type=password]").val("");
+                  //       // console.log(result);
+                  //       console.log(result.responseJSON);
+                  //       result.responseJSON.errors.forEach(item => {
+                  //          var input = $("#" + item.field);
+                  //          if (!input.hasClass("is-invalid")) {
+                  //             input.addClass("is-invalid");
+                  //          }
+                  //          if (input.attr("data-original-title") == "") {
+                  //             input.attr("data-original-title", item.defaultMessage);
+                  //          } else {
+                  //             input.attr("data-original-title", input.attr("data-original-title") + "\n" + item.defaultMessage);
+                  //          }
+                  //       });
+                  //       $("input").prop("disabled", null);
+                  //       // $("input[type=password]").removeClass("is-valid");
+                  //       // $('[data-toggle="tooltip"]').tooltip('show');
+                  //    },
+                  //    success: (result) => {
+                  //       console.log(result)
+                  //       $("input[type=password]").val("");
+                  //       if (result.length) {
+                  //          $("#commonError").css("display", null);
+                  //          $("#commonError").css("display", "block");
+                  //          var errorMsg = "<ul>";
+                  //          result.forEach(element => {
+                  //             errorMsg += "<li>" + element.defaultMessage + "</li>";
+                  //          });
+                  //          errorMsg += "</ul>";
+                  //          $("#commonError").html(errorMsg);
+                  //          $("input").prop("disabled", null);
+                  //       } else {
+                  //          console.log("success");
 
-                        }
+                  //       }
 
-                     },
-                  })
+                  //    },
+                  // })
                }
 
 

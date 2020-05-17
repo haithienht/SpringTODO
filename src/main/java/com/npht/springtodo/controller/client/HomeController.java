@@ -7,8 +7,14 @@ import javax.validation.Valid;
 import com.npht.springtodo.dto.UserLogin;
 import com.npht.springtodo.model.User;
 import com.npht.springtodo.repository.UserRepository;
+import com.npht.springtodo.service.UserDetailsServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,6 +33,9 @@ public class HomeController {
     @Autowired
     private HttpSession session;
 
+    @Autowired
+    AuthenticationManager authManager;
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     public String getHome(Model model) {
         // model.addAttribute("users", userRepo.findAll());
@@ -40,31 +49,40 @@ public class HomeController {
         return "view/client/login";
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public @ResponseBody Object postLogin(@Valid @ModelAttribute("user") UserLogin user, Model model,
-            BindingResult errors, HttpServletResponse response) {
-        // model.addAttribute("users", userRepo.findAll());
-        // BindingResult newErrors = new BeanPropertyBindingResult(user, "user");
-        // newErrors.addError(errors.getFieldError("email"));
-        // newErrors.addError(errors.getFieldError("password"));
-        // if (newErrors.hasErrors()) {
-        // return newErrors.getAllErrors();
-        // }
-        // return errors.getAllErrors();
+    //TODO: added Spring security, need to dig deeper in authorization and authentication setting
 
-        // return "post login";
-        // response.setStatus(HttpServletResponse.SC_OK);
-        //TODO: Add authentication with Spring Security, JDBC "spring boot database authentication session"
-        if (!errors.hasErrors()) {
-            User u = userRepo.findByEmailAndPassword(user.getEmail(), user.getPassword());
-            if (u == null) {
-                errors.reject("common", "Invalid login information. Please check again your email and password.");
-            } else {
-                u.setPassword("");
-                session.setAttribute("loggedInUser", u);
-            }
-        }
-        return errors.getAllErrors();
-    }
+    // @RequestMapping(value = "/doLogin", method = RequestMethod.POST)
+    // public @ResponseBody Object postLogin(@Valid @ModelAttribute("user")
+    // UserLogin user, Model model,
+    // BindingResult errors, HttpServletResponse response) {
+    // model.addAttribute("users", userRepo.findAll());
+    // BindingResult newErrors = new BeanPropertyBindingResult(user, "user");
+    // newErrors.addError(errors.getFieldError("email"));
+    // newErrors.addError(errors.getFieldError("password"));
+    // if (newErrors.hasErrors()) {
+    // return newErrors.getAllErrors();
+    // }
+    // return errors.getAllErrors();
+
+    // return "post login";
+    // response.setStatus(HttpServletResponse.SC_OK);
+    // if (!errors.hasErrors()) {
+    // User u = userRepo.findByEmailAndPassword(user.getEmail(),
+    // user.getPassword());
+    // if (u == null) {
+    // errors.reject("common", "Invalid login information. Please check again your
+    // email and password.");
+    // } else {
+    // u.setPassword("");
+    // UsernamePasswordAuthenticationToken authReq = new
+    // UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+    // Authentication auth = authManager.authenticate(authReq);
+    // SecurityContext sc = SecurityContextHolder.getContext();
+    // sc.setAuthentication(auth);
+    // session.setAttribute("loggedInUser", u);
+    // }
+    // }
+    // return errors.getAllErrors();
+    // }
 
 }
