@@ -1,5 +1,7 @@
 package com.npht.springtodo.controller.client;
 
+import java.security.Principal;
+
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
@@ -10,6 +12,7 @@ import com.npht.springtodo.repository.UserRepository;
 import com.npht.springtodo.service.UserDetailsServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -42,14 +45,23 @@ public class HomeController {
         return "view/client/index";
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    @RequestMapping(value = "profile", method = RequestMethod.GET)
+    public String getProfile(Model model, Principal principal) {
+    
+        model.addAttribute("loggedInUser", userRepo.findByEmail(principal.getName()));
+        return "view/client/profile";
+    }
+
+    @RequestMapping(value = "login", method = RequestMethod.GET)
     public String getLogin(Model model) {
         // model.addAttribute("users", userRepo.findAll());
         model.addAttribute("user", new UserLogin());
         return "view/client/login";
     }
 
-    //TODO: added Spring security, need to dig deeper in authorization and authentication setting
+    // TODO: add remember token
+    // authentication setting
 
     // @RequestMapping(value = "/doLogin", method = RequestMethod.POST)
     // public @ResponseBody Object postLogin(@Valid @ModelAttribute("user")
