@@ -11,7 +11,8 @@
     </head>
 
     <body>
-        <p th:text="${loggedInUser.name}"></p>
+        <p th:text="${session.loggedInUser.name}" th:if="${session.loggedInUser != null}"></p>
+        <a href="logout">Logout</a>
     </body>
 
 </html>

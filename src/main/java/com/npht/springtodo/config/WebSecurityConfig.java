@@ -16,6 +16,8 @@ import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -55,6 +57,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         auth.authenticationProvider(authenticationProvider());
     }
 
+    @Bean
+    public AuthenticationSuccessHandler todoAuthenticationSuccessHandler() {
+        return new TodoAuthenticationSuccessHandler();
+    }
+
+    @Bean
+    public LogoutSuccessHandler todoLogoutSuccessHandler() {
+        return new TodoLogoutSuccessHandler();
+    }
+
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring().antMatchers("/resources/**");
@@ -70,7 +82,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().antMatchers("/addNewEmployee").hasAnyRole("ADMIN");
         http.authorizeRequests().anyRequest().authenticated();
         http.authorizeRequests().and().formLogin().loginPage("/login").loginProcessingUrl("/doLogin")
-                .usernameParameter("email").permitAll().and().logout().permitAll();
+                .usernameParameter("email").successHandler(todoAuthenticationSuccessHandler()).permitAll().and()
+                .logout().logoutSuccessHandler(todoLogoutSuccessHandler()).permitAll();
         // http.httpBasic().disable()l
 
         http.csrf().disable();

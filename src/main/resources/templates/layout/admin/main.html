@@ -10,9 +10,9 @@
     <title>Layout title</title>
 
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" th:href="@{/admin/plugins/fontawesome-free/css/all.min.css}">
+    <link rel="stylesheet" th:href="@{/resources/plugins/fontawesome-free/css/all.min.css}">
     <!-- Theme style -->
-    <link rel="stylesheet" th:href="@{/admin/css/adminlte.min.css}">
+    <link rel="stylesheet" th:href="@{/resources/css/adminlte.min.css}">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
@@ -148,7 +148,7 @@
         <aside class="main-sidebar sidebar-dark-olive elevation-4">
             <!-- Brand Logo -->
             <a href="index3.html" class="brand-link">
-                <img th:src="@{/admin/img/AdminLTELogo.png}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+                <img th:src="@{/resources/img/AdminLTELogo.png}" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                     style="opacity: .8">
                 <span class="brand-text font-weight-light">AdminLTE 3</span>
             </a>
@@ -158,7 +158,7 @@
                 <!-- Sidebar user panel (optional) -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
-                        <img th:src="@{/admin/img/user2-160x160.jpg}" class="img-circle elevation-2" alt="User Image">
+                        <img th:src="@{/resources/img/user2-160x160.jpg}" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
                         <a href="#" class="d-block">Alexander Pierce</a>
@@ -317,11 +317,11 @@
     <!-- REQUIRED SCRIPTS -->
 
     <!-- jQuery -->
-    <script src="plugins/jquery/jquery.min.js"></script>
+    <script th:src="@{/resources/plugins/jquery/jquery.min.js}"></script>
     <!-- Bootstrap 4 -->
-    <script src="plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/resources/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
     <!-- AdminLTE App -->
-    <script src="dist/js/adminlte.min.js"></script>
+    <script th:src="@{/resources/js/adminlte.min.js}"></script>
 
     <th:block>
 

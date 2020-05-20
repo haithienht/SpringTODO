@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>TODO</title>
+    </head>
+
+    <body>
+        <h1>Welcome</h1>
+        <div th:if="${session.loggedInUser != null}">
+            <p th:text="${'Hello ' + session.loggedInUser.name}"></p>
+            <a href="dashboard">Go to Dashboard</a><br>
+            <a href="logout">Logout</a>
+        </div>
+
+        <a href="login" th:if="${session.loggedInUser == null}">Login</a>
+    </body>
+
+</html>

@@ -8,6 +8,7 @@ import javax.validation.Valid;
 
 import com.npht.springtodo.dto.UserLogin;
 import com.npht.springtodo.model.User;
+import com.npht.springtodo.repository.ProjectRepository;
 import com.npht.springtodo.repository.UserRepository;
 import com.npht.springtodo.service.UserDetailsServiceImpl;
 
@@ -34,6 +35,9 @@ public class HomeController {
     private UserRepository userRepo;
 
     @Autowired
+    private ProjectRepository projectRepo;
+
+    @Autowired
     private HttpSession session;
 
     @Autowired
@@ -48,19 +52,29 @@ public class HomeController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     @RequestMapping(value = "profile", method = RequestMethod.GET)
     public String getProfile(Model model, Principal principal) {
-    
-        model.addAttribute("loggedInUser", userRepo.findByEmail(principal.getName()));
+        // model.addAttribute("loggedInUser",
+        // userRepo.findByEmail(principal.getName()));
         return "view/client/profile";
     }
 
     @RequestMapping(value = "login", method = RequestMethod.GET)
-    public String getLogin(Model model) {
+    public String getLogin(Model model, Principal principal) {
         // model.addAttribute("users", userRepo.findAll());
+        if (principal != null) {
+            return "redirect:/";
+        }
         model.addAttribute("user", new UserLogin());
         return "view/client/login";
     }
 
-    // TODO: add remember token
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "dashboard")
+    public String getDashboard(Model model, Principal principal) {
+        model.addAttribute("projects", projectRepo.findByUser_Email(principal.getName());
+        return "view/client/dashboard";
+    }
+
+    // TODO: add remember token, encrypt password
     // authentication setting
 
     // @RequestMapping(value = "/doLogin", method = RequestMethod.POST)
