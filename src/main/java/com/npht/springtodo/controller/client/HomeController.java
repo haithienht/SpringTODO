@@ -70,7 +70,7 @@ public class HomeController {
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "dashboard")
     public String getDashboard(Model model, Principal principal) {
-        model.addAttribute("projects", projectRepo.findByUser_Email(principal.getName());
+        model.addAttribute("projects", projectRepo.findByUser_Email(principal.getName()));
         return "view/client/dashboard";
     }
 
