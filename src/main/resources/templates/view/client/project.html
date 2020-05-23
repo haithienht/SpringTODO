@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/client/main}">
+
+    <head>
+        <title>TODOHT - Dashboard</title>
+    </head>
+
+    <body>
+        <div class="container-fluid" layout:fragment="header">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-olive input" th:id="${'p' + project.id}" th:text="${project.title}"></h1>
+                </div><!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="dashboard">Home</a></li>
+                        <li class="breadcrumb-item active" th:text="${project.title}"></li>
+                    </ol>
+                </div><!-- /.col -->
+            </div><!-- /.row -->
+        </div><!-- /.container-fluid -->
+        <div layout:fragment="content">
+            <div class="row">
+                <div class="col-lg-3 list-obj" th:each="list : ${project.lists}">
+                    <div class="card card-olive card-outline">
+                        <div class="card-header">
+                            <span th:text="${list.title}" class="input" th:id="${'l' + list.id}"></span>
+                            <i class="fas fa-check-circle text-success" th:style="${#lists.isEmpty(list.tasks.?[isDone!=true])? 'display:inline-block' : 'display:none'}"></i>
+                        </div>
+                        <div class="card-body">
+                            <ul>
+                                <li th:each="task : ${list.tasks}">
+                                    <div>
+                                        <span class="input" th:text="${task.title}" th:id="${'t' + task.id}"></span>
+                                        <i class="fas fa-check-circle text-success" th:style="${task.isDone ? 'display:inline-block' : 'display:none'}"></i>
+                                    </div>
+                                    
+                                    <div th:if="${task.type eq 'list'}">
+                                        <ul th:if="${!#lists.isEmpty(task.taskItems)}">
+                                            <li th:each="item : ${task.taskItems}">
+                                                <span class="input" th:text="${item.title}" th:id="${'t' + item.id}"></span>
+                                                <i class="fas fa-check-circle text-success" th:style="${item.isDone ? 'display:inline-block' : 'display:none'}"></i>
+                                            </li>
+                                        </ul>
+                                        <i th:if=${#lists.isEmpty(task.taskItems)}>(No item yet)</i>
+                                    </div>
+                                
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <th:block layout:fragment="scripts">
+            <script th:src="@{/resources/js/jquery.jeditable.js}"></script>
+
+            <script>
+                // (value, settings) => {
+                //     console.log(this);
+                //     console.log(value);
+                //     console.log(settings);
+                //     console.log(settings.submitdata);
+                //     return (value);
+                // }
+                // TODO: fetch saved data
+                $(".input").editable("./save", {
+                    type: "text",
+                    submit: "<button class='btn btn-outline-olive'><i class='fas fa-check'></i></button>",
+                    indicator: 'Saving…',
+                    cssclass: "form-inline",
+                    inputcssclass: "form-control",
+                    tooltip: "Click to edit...",
+                    callback: (result, settings, submitdata) => {
+                        // console.log(result);
+                    },
+                });
+                $(() => {
+                    $('[data-toggle="tooltip"]').tooltip();
+                })
+            </script>
+        </th:block>
+    </body>
+
+</html>

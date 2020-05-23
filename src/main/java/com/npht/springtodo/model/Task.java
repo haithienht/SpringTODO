@@ -18,8 +18,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "project")
-public class Project {
+@Table(name = "task")
+public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -31,9 +31,14 @@ public class Project {
     @Column(name = "detail", length = 255, nullable = true)
     private String detail;
 
-    @Column(name = "deadline")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date deadline;
+    @Column(name = "`order`", nullable = true)
+    private Integer order;
+
+    @Column(name = "type", length = 20, nullable = false)
+    private String type;
+
+    @Column(name = "is_done")
+    private Boolean isDone;
 
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -44,12 +49,16 @@ public class Project {
     private Date updatedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @JoinColumn(name = "list_id", referencedColumnName = "id")
+    private ProjectList list; 
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private List<ProjectList> lists;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "task_list_id", referencedColumnName = "id")
+    private Task listTask; 
 
+    @OneToMany(mappedBy = "listTask", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private List<Task> taskItems;
+  
     /**
      * @return Long return the id
      */
@@ -93,17 +102,45 @@ public class Project {
     }
 
     /**
-     * @return Date return the deadline
+     * @return Integer return the order
      */
-    public Date getDeadline() {
-        return deadline;
+    public Integer getOrder() {
+        return order;
     }
 
     /**
-     * @param deadline the deadline to set
+     * @param order the order to set
      */
-    public void setDeadline(Date deadline) {
-        this.deadline = deadline;
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
+    /**
+     * @return String return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @param type the type to set
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    /**
+     * @return Boolean return the isDone
+     */
+    public Boolean getIsDone() {
+        return isDone;
+    }
+
+    /**
+     * @param isDone the isDone to set
+     */
+    public void setIsDone(Boolean isDone) {
+        this.isDone = isDone;
     }
 
     /**
@@ -135,24 +172,45 @@ public class Project {
     }
 
     /**
-     * @return User return the user
+     * @return ProjectList return the list
      */
-    public User getUser() {
-        return user;
+    public ProjectList getList() {
+        return list;
     }
 
     /**
-     * @param user the user to set
+     * @param list the list to set
      */
-    public void setUser(User user) {
-        this.user = user;
+    public void setList(ProjectList list) {
+        this.list = list;
     }
 
-    public List<ProjectList> getLists() {
-        return lists;
+    /**
+     * @return Task return the listTask
+     */
+    public Task getListTask() {
+        return listTask;
     }
 
-    public void setLists(List<ProjectList> lists) {
-        this.lists = lists;
+    /**
+     * @param listTask the listTask to set
+     */
+    public void setListTask(Task listTask) {
+        this.listTask = listTask;
     }
+
+    /**
+     * @return List<Task> return the taskItems
+     */
+    public List<Task> getTaskItems() {
+        return taskItems;
+    }
+
+    /**
+     * @param taskItems the taskItems to set
+     */
+    public void setTaskItems(List<Task> taskItems) {
+        this.taskItems = taskItems;
+    }
+
 }

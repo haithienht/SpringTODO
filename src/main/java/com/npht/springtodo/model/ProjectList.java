@@ -18,8 +18,8 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 @Entity
-@Table(name = "project")
-public class Project {
+@Table(name = "list")
+public class ProjectList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -31,9 +31,8 @@ public class Project {
     @Column(name = "detail", length = 255, nullable = true)
     private String detail;
 
-    @Column(name = "deadline")
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date deadline;
+    @Column(name = "\"order\"")
+    private Integer order;
 
     @Column(name = "created_date")
     @Temporal(TemporalType.TIMESTAMP)
@@ -44,11 +43,11 @@ public class Project {
     private Date updatedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    @JoinColumn(name = "project_id", referencedColumnName = "id")
+    private Project project;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
-    private List<ProjectList> lists;
+    @OneToMany(mappedBy = "list", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private List<Task> tasks;
 
     /**
      * @return Long return the id
@@ -93,17 +92,17 @@ public class Project {
     }
 
     /**
-     * @return Date return the deadline
+     * @return Integer return the order
      */
-    public Date getDeadline() {
-        return deadline;
+    public Integer getOrder() {
+        return order;
     }
 
     /**
-     * @param deadline the deadline to set
+     * @param order the order to set
      */
-    public void setDeadline(Date deadline) {
-        this.deadline = deadline;
+    public void setOrder(Integer order) {
+        this.order = order;
     }
 
     /**
@@ -135,24 +134,25 @@ public class Project {
     }
 
     /**
-     * @return User return the user
+     * @return Project return the project
      */
-    public User getUser() {
-        return user;
+    public Project getProject() {
+        return project;
     }
 
     /**
-     * @param user the user to set
+     * @param project the project to set
      */
-    public void setUser(User user) {
-        this.user = user;
+    public void setProject(Project project) {
+        this.project = project;
     }
 
-    public List<ProjectList> getLists() {
-        return lists;
+    public List<Task> getTasks() {
+        return tasks;
     }
 
-    public void setLists(List<ProjectList> lists) {
-        this.lists = lists;
+    public void setTasks(List<Task> tasks) {
+        this.tasks = tasks;
     }
+
 }
