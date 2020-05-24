@@ -2,30 +2,21 @@ package com.npht.springtodo.controller.client;
 
 import java.security.Principal;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 
 import com.npht.springtodo.dto.UserLogin;
-import com.npht.springtodo.model.User;
 import com.npht.springtodo.repository.ProjectRepository;
 import com.npht.springtodo.repository.UserRepository;
-import com.npht.springtodo.service.UserDetailsServiceImpl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
+
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 @RequestMapping(value = "")
@@ -71,6 +62,7 @@ public class HomeController {
     @RequestMapping(value = "dashboard")
     public String getDashboard(Model model, Principal principal) {
         model.addAttribute("projects", projectRepo.findByUser_Email(principal.getName()));
+        model.addAttribute("cate", "dashboard");
         return "view/client/dashboard";
     }
 

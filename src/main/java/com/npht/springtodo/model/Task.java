@@ -1,5 +1,7 @@
 package com.npht.springtodo.model;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +21,10 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "task")
-public class Task {
+public class Task implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -50,15 +55,52 @@ public class Task {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id", referencedColumnName = "id")
-    private ProjectList list; 
+    private ProjectList list;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "task_list_id", referencedColumnName = "id")
-    private Task listTask; 
+    private Task listTask;
 
     @OneToMany(mappedBy = "listTask", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<Task> taskItems;
-  
+
+    public Task toJsonTask() {
+        Task t = new Task();
+        try {
+            if (id == null) {
+                throw new Exception("Cannot do this on null.");
+            }
+            t.setId(id);
+            t.setTitle(title);
+            t.setDetail(detail);
+            t.setIsDone(isDone);
+            t.setType(type);
+            t.setCreatedDate(createdDate);
+            t.setUpdatedDate(updatedDate);
+            t.setOrder(order);
+            // Process "list" or "item"
+            if (type.equals("list")) {
+                List<Task> taskList = new ArrayList<>();
+                if (taskItems != null && taskItems.size() > 0) {
+                    for (Task item : taskItems) {
+                        Task taskItem = new Task();
+                        taskItem.setId(item.getId());
+                        taskItem.setTitle(item.getTitle());
+                        taskItem.setOrder(item.getOrder());
+                        taskItem.setIsDone(item.getIsDone());
+                        taskItem.setType(item.getType());
+                        taskList.add(taskItem);
+                    }
+                }
+                t.setTaskItems(taskList);
+            }
+            return t;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * @return Long return the id
      */

@@ -1,7 +1,9 @@
 package com.npht.springtodo.controller.client;
 
 import java.security.Principal;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 import com.npht.springtodo.model.Project;
 import com.npht.springtodo.model.ProjectList;
@@ -9,9 +11,9 @@ import com.npht.springtodo.model.Task;
 import com.npht.springtodo.repository.ProjectListRepository;
 import com.npht.springtodo.repository.ProjectRepository;
 import com.npht.springtodo.repository.TaskRepository;
-import com.npht.springtodo.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,8 +33,6 @@ public class ProjectController {
     private ProjectListRepository listRepo;
     @Autowired
     private TaskRepository taskRepo;
-    @Autowired
-    private UserRepository userRepo;
 
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "{projectId}", method = RequestMethod.GET)
@@ -47,13 +47,68 @@ public class ProjectController {
             if (!project.getUser().getEmail().equals(principal.getName())) {
                 throw new Exception("Logged-in user don't own this project.");
             }
-
+            List<ProjectList> lists = project.getLists();
+            lists.sort(Comparator.comparing(ProjectList::getOrder, Comparator.nullsLast(Comparator.naturalOrder())));
+            for (ProjectList projectList : lists) {
+                projectList.getTasks()
+                        .sort(Comparator.comparing(Task::getOrder, Comparator.nullsLast(Comparator.naturalOrder())));
+            }
             // Result
             model.addAttribute("project", project);
+            model.addAttribute("lists", lists);
+            model.addAttribute("cate", "project");
             return "view/client/project";
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
             return "redirect:/dashboard";
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "getTaskInfo", method = RequestMethod.POST, produces = "application/json")
+    public @ResponseBody Task getTaskInfo(@RequestParam(name = "id") String id) {
+        String preId = id.substring(0, 1);
+        String sufIdstr = id.substring(1, id.length());
+        System.out.println("id: \"" + id + "\" | preId: \"" + preId + "\" | sufId: \"" + sufIdstr + "\"");
+        try {
+            if (!"t".equals(preId)) {
+                throw new Exception("Wrong id.");
+            }
+            Long sufId = Long.parseLong(sufIdstr);
+            Task t = taskRepo.findById(sufId).orElse(null);
+            if (null != t) {
+                return t.toJsonTask();
+            } else {
+                throw new Exception("Cannot find the task (id = " + sufId + ")");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "newTask", method = RequestMethod.POST)
+    public @ResponseBody String doAddNewTask(@RequestParam(name = "id") String id) {
+        String preId = id.substring(0, 5);
+        String sufIdstr = id.substring(5, id.length());
+        System.out.println("id: \"" + id + "\" | preId: \"" + preId + "\" | sufId: \"" + sufIdstr + "\"");
+        try {
+            Long sufId = Long.parseLong(sufIdstr);
+            ProjectList l = listRepo.findById(sufId).orElse(null);
+            if (l == null) {
+                throw new Exception("Cannot find the list (id = " + sufId + ")");
+            }
+            Task t = new Task();
+            t.setList(l);
+            t.setTitle("New Task");
+            t.setType("item");
+            t.setIsDone(false);
+            taskRepo.save(t);
+            return t.getId().toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -121,6 +176,28 @@ public class ProjectController {
             }
         } catch (Exception e) {
             // System.out.println(e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "saveToggle", method = RequestMethod.POST)
+    public @ResponseBody String doSaveToggle(@RequestParam(name = "id") String id,
+            @RequestParam(name = "isDone") Boolean isDone) {
+        String preId = id.substring(0, 1);
+        String sufIdstr = id.substring(1, id.length());
+        System.out.println("id: \"" + id + "\" | preId: \"" + preId + "\" | sufId: \"" + sufIdstr + "\"");
+        try {
+            Long sufId = Long.parseLong(sufIdstr);
+            Task t = taskRepo.findById(sufId).orElse(null);
+            if (t == null) {
+                throw new Exception("Cannot find the task (id = " + sufId + ")");
+            }
+            t.setIsDone(isDone);
+            taskRepo.save(t);
+            return "success";
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }

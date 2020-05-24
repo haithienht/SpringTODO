@@ -1,73 +1,228 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
-    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/client/main}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/client/main}">
 
-    <head>
-        <title>TODOHT - Dashboard</title>
-    </head>
+<head>
+    <title>TODOHT - Dashboard</title>
+    <th:block layout:fragment="styles">
+        <!-- <link rel="stylesheet" th:href="@{/resources/plugins/jquery-ui/jquery-ui.min.css}"> -->
+    </th:block>
+    <style>
+        .plist {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+        
+        .plist>li {
+            margin: 0 5px 5px 5px;
+            padding: 5px;
+            height: auto;
+            border: 1px darkgray solid;
+            background-color: #e4f7edf8;
+        }
+        
+        .ptask {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+        }
+        
+        .ptask>li {
+            margin: 0 5px 5px 5px;
+            padding: 5px;
+            height: auto;
+            border: 1px darkgray solid;
+            background-color: #e4f7edf8;
+        }
+        
+        .ptask>li:hover {
+            cursor: pointer;
+            background-color: #f2faf6f8;
+        }
+        
+        .state-highlight {
+            background-color: lightyellow !important;
+            border: 1px black dashed !important;
+            opacity: 0.4;
+        }
+        
+        .handle-list {
+            cursor: grab;
+        }
+        
+        .handle-list:active {
+            cursor: grabbing;
+        }
+        
+        .handle-task {
+            cursor: grab;
+        }
+        
+        .handle-task:active {
+            cursor: grabbing;
+        }
+    </style>
+</head>
 
-    <body>
-        <div class="container-fluid" layout:fragment="header">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <h1 class="m-0 text-olive input" th:id="${'p' + project.id}" th:text="${project.title}"></h1>
-                </div><!-- /.col -->
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="dashboard">Home</a></li>
-                        <li class="breadcrumb-item active" th:text="${project.title}"></li>
-                    </ol>
-                </div><!-- /.col -->
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
-        <div layout:fragment="content">
-            <div class="row">
-                <div class="col-lg-3 list-obj" th:each="list : ${project.lists}">
-                    <div class="card card-olive card-outline">
-                        <div class="card-header">
-                            <span th:text="${list.title}" class="input" th:id="${'l' + list.id}"></span>
-                            <i class="fas fa-check-circle text-success" th:style="${#lists.isEmpty(list.tasks.?[isDone!=true])? 'display:inline-block' : 'display:none'}"></i>
-                        </div>
-                        <div class="card-body">
-                            <ul>
-                                <li th:each="task : ${list.tasks}">
-                                    <div>
-                                        <span class="input" th:text="${task.title}" th:id="${'t' + task.id}"></span>
-                                        <i class="fas fa-check-circle text-success" th:style="${task.isDone ? 'display:inline-block' : 'display:none'}"></i>
-                                    </div>
-                                    
-                                    <div th:if="${task.type eq 'list'}">
-                                        <ul th:if="${!#lists.isEmpty(task.taskItems)}">
-                                            <li th:each="item : ${task.taskItems}">
-                                                <span class="input" th:text="${item.title}" th:id="${'t' + item.id}"></span>
-                                                <i class="fas fa-check-circle text-success" th:style="${item.isDone ? 'display:inline-block' : 'display:none'}"></i>
-                                            </li>
-                                        </ul>
-                                        <i th:if=${#lists.isEmpty(task.taskItems)}>(No item yet)</i>
-                                    </div>
-                                
-                                </li>
-                            </ul>
-                        </div>
+<body>
+    <div class="container-fluid" layout:fragment="header">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0 text-olive">
+                    <span class="input" th:text="${project.title}" th:id="${'p' + project.id}"></span>
+                    <button class="btn btn-olive" id="addList">Add new List</button>
+                </h1>
+
+            </div>
+            <!-- /.col -->
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="dashboard">Home</a></li>
+                    <li class="breadcrumb-item active" th:text="${project.title}"></li>
+                </ol>
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+    <div layout:fragment="content">
+        <div id="project" class="row plist">
+            <div class="col-lg-3" th:each="list : ${lists}" th:id="${'list_' + list.id}">
+                <div class="card card-olive card-outline">
+                    <div class="card-header">
+                        <i class="handle-list fas fa-bars"></i>
+                        <span th:text="${list.title}" class="input" th:id="${'l' + list.id}"></span>
+                        <i class="fas fa-check-circle text-success" th:style="${#lists.isEmpty(list.tasks.?[isDone!=true])? 'display:inline-block' : 'display:none'}"></i>
+                    </div>
+                    <div class="card-body py-1">
+                        <ul class="ptask">
+                            <li th:each="task : ${list.tasks}" class="task">
+                                <div>
+                                    <i class="handle-task fas fa-bars"></i>
+                                    <span class="title" th:text="${task.title}" th:id="${'t' + task.id}"></span>
+                                    <i class="fas fa-check-circle text-success" th:style="${task.isDone ? 'display:inline-block' : 'display:none'}"></i>
+                                </div>
+
+                                <div th:if="${task.type eq 'list'}" class="taskList">
+                                    <ul th:if="${!#lists.isEmpty(task.taskItems)}">
+                                        <li th:each="item : ${task.taskItems}">
+                                            <span th:text="${item.title}" th:id="${'t' + item.id}"></span>
+                                            <i class="fas fa-check-circle text-success" th:style="${item.isDone ? 'display:inline-block' : 'display:none'}"></i>
+                                        </li>
+                                    </ul>
+                                    <i th:if=${#lists.isEmpty(task.taskItems)}>(No item yet)</i>
+                                </div>
+
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-footer pt-1 pb-2">
+                        <button class="btn btn-outline-olive btn-block" th:target-id="${'list_' + list.id}"><i class="fas fa-plus-square"></i> Add new ...</button>
                     </div>
                 </div>
             </div>
-
         </div>
 
-        <th:block layout:fragment="scripts">
-            <script th:src="@{/resources/js/jquery.jeditable.js}"></script>
+        <!-- Modal -->
 
-            <script>
-                // (value, settings) => {
-                //     console.log(this);
-                //     console.log(value);
-                //     console.log(settings);
-                //     console.log(settings.submitdata);
-                //     return (value);
-                // }
-                // TODO: fetch saved data
-                $(".input").editable("./save", {
+        <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <!-- <div class="modal-header">
+                        <h5 class="modal-title">Modal title</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div> -->
+                    <div class="modal-body">
+                        <form action="javascript:return null">
+                            <input type="hidden" name="id">
+                            <input type="text" class="form-control" name="title">
+                            <hr>
+                            <label for="detail">Detail</label>
+                            <textarea class="form-control" name="detail" rows="3"></textarea>
+                            <div class="form-inline">
+                                <label class="mr-3">Status</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" class="custom-control-input" id="isDone" name="isDone">
+                                    <label class="custom-control-label" for="isDone">Done</label>
+                                </div>
+                                <div class="ml-3">
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input" type="radio" id="typeItem" name="type" value="item">
+                                        <label for="typeItem" class="custom-control-label">Item</label>
+                                    </div>
+                                    <div class="custom-control custom-radio">
+                                        <input class="custom-control-input" type="radio" id="typeList" name="type" value="list">
+                                        <label for="typeList" class="custom-control-label">List</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <ul class="ptask" id="list">
+
+                            </ul>
+                            <button class="btn btn-outline-olive" id="addNewModalTask"><i class="fas fa-plus-square"></i> Add new ...</button>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger mr-auto"><i class="fas fa-trash"></i></button>
+                        <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal = END -->
+
+        <div class="col-lg-3" id="model" style="display: none;">
+            <div class="card card-olive card-outline">
+                <div class="card-header">
+                    <i class="handle-list fas fa-bars"></i>
+                    <span class="input">New List</span>
+                </div>
+                <div class="card-body py-1">
+                    <ul class="ptask">
+
+                    </ul>
+                </div>
+                <div class="card-footer pt-1 pb-2">
+                    <button class="btn btn-outline-olive btn-block" target-id="0"><i class="fas fa-plus-square"></i> Add new ...</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+    <th:block layout:fragment="scripts">
+        <script th:src="@{/resources/js/jquery.jeditable.js}"></script>
+        <!-- <script th:src="@{/resources/plugins/jquery-ui/jquery-ui.min.js}"></script> -->
+        <script th:src="@{/resources/js/Sortable.js}"></script>
+
+        <script>
+            // TODO1: Parse list data from json
+            // TODO2: make modal to edit tasks
+
+            // ========== FUNCTION / CONFIG =========
+            var listModel = $("#model");
+            var newTask = (id) => {
+                return "<li><i class='handle-task fas fa-bars'></i> <span id='t" + id + "'>New Task</span></li>";
+            }
+            var newTaskInList = (id, title, isDone) => {
+                return "<li class='form-inline'><i class='handle-task fas fa-bars'></i> " +
+                    " <div class='custom-control custom-switch'>" +
+                    "<input type='checkbox' id='done" + id + "' class='custom-control-input' " + (isDone === true ? "checked" : "") + ">" +
+                    "<label class='custom-control-label' for='done" + id + "'></label></div>" +
+                    " <span class='input' id='t" + id + "'>" + (title != null ? title : "New Task") + "</span></li>";
+            }
+
+            var project = $("#project");
+
+            function makeEditable(element) {
+                $(element).editable("./save", {
                     type: "text",
                     submit: "<button class='btn btn-outline-olive'><i class='fas fa-check'></i></button>",
                     indicator: 'Saving…',
@@ -78,11 +233,197 @@
                         // console.log(result);
                     },
                 });
-                $(() => {
-                    $('[data-toggle="tooltip"]').tooltip();
+            }
+
+            function makeSortable(element, type) {
+                new Sortable(element, {
+                    animation: 150,
+                    ghostClass: "state-highlight",
+                    handle: '.handle-' + type
+                });
+            }
+
+            function makeNewTaskButton(element) {
+                let button = $(element);
+                button.on("click", () => {
+                    let id = button.attr("target-id");
+                    $.ajax({
+                        url: "newTask",
+                        data: {
+                            id: id
+                        },
+                        method: "POST",
+                        success: (result) => {
+                            if (result) {
+                                button.parent().parent().find("ul.ptask").append(newTask(result));
+                            } else {
+                                console.log("null");
+                            }
+                        },
+                        error: () => {
+                            console.log("error");
+                        }
+                    })
+                });
+            }
+
+            function makeTaskEditable(element) {
+                let id = $(element).find(".title").attr("id");
+                $(element).on("click", (event) => {
+                    showEditTask(id);
                 })
-            </script>
-        </th:block>
-    </body>
+            }
+
+            function showEditTask(id) {
+                $.ajax({
+                    url: "getTaskInfo",
+                    type: "POST",
+                    data: {
+                        id: id
+                    },
+                    success: (result) => {
+                        if (result) {
+                            let modal = $("#taskModal");
+                            modal.find("[name='id']").val(result.id);
+                            modal.find("[name='title']").val(result.title);
+                            modal.find("[name='detail']").html(result.detail);
+                            modal.find("[name='type'][value='" + result.type + "']").click();
+                            modal.find("[name='isDone']").attr("checked", result.isDone ? true : null);
+                            modal.find("#list").html("");
+                            if (result.type == "list") {
+                                generateModalTaskList(result.taskItems, modal.find("#list"));
+                                modal.find(".input").each((i, e) => {
+                                    makeEditable(e);
+                                });
+                                modal.find("#list input[type='checkbox']").each((i, e) => {
+                                    makeTogglable(e);
+                                });
+                            }
+
+                            modal.modal("show");
+                            console.log(result);
+                        } else {
+                            console.log("error after ajax success");
+                        }
+                    },
+                    error: () => {
+                        console.log("error");
+                    }
+                })
+            }
+
+            function generateModalTaskList(list, destination) {
+                list.forEach(item => {
+                    destination.append(newTaskInList(item.id, item.title, item.isDone));
+                });
+            }
+
+            function makeModalTaskListItem(id) {
+
+            }
+
+            function makeTogglable(element) {
+                let toggle = $(element);
+                toggle.on("click", () => {
+                    let id = toggle.parent().next("span").attr("id");
+                    let isDone = toggle.is(":checked");
+                    console.log(id + ":" + isDone);
+                    $.ajax({
+                        url: "saveToggle",
+                        type: "POST",
+                        data: {
+                            id: id,
+                            isDone: isDone
+                        },
+                        success: (result) => {
+                            if (result) {
+                                console.log(result);
+                            } else {
+                                console.log("error after ajax success");
+                            }
+                        },
+                        error: () => {
+                            console.log("error");
+                        }
+                    });
+                })
+            }
+            // ========== FUNCTION / CONFIG - END =========
+
+            // ========== INITIALIZATION =============
+            $(".input").each((i, e) => {
+                makeEditable(e);
+            });
+            $(".plist").each((i, e) => {
+                makeSortable(e, 'list');
+            });
+            $(".ptask").each((i, e) => {
+                makeSortable(e, 'task');
+            });
+            $("[target-id]").each((i, e) => {
+                makeNewTaskButton(e);
+            });
+            $(".task").each((i, e) => {
+                makeTaskEditable(e);
+            });
+            // ========== INITIALIZATION - END =============
+
+            // ========== custom functions ===========
+            $("#addList").on("click", () => {
+                let newList = listModel.clone();
+                newList.css("display", "block");
+                newList.attr("id", null);
+                newList.find("[target-id]").each((i, e) => {
+                    makeNewTaskButton(e);
+                });
+                newList.find(".ptask").each((i, e) => {
+                    makeSortable(e, 'task');
+                });
+                newList.find(".input").each((i, e) => {
+                    makeEditable(e);
+                });
+                newList.appendTo(project);
+                // project.append(newList);
+            });
+
+            $("#addNewModalTask").on("click", () => {
+                let id = $("#addNewModalTask").parent().find("[name='id']").val();
+                console.log(id);
+                // $.ajax({
+                //     url: "newTask",
+                //     data: {
+                //         id: id
+                //     },
+                //     method: "POST",
+                //     success: (result) => {
+                //         if (result) {
+                //             button.parent().parent().find("ul.ptask").append(newTask(result));
+                //         } else {
+                //             console.log("null");
+                //         }
+                //     },
+                //     error: () => {
+                //         console.log("error");
+                //     }
+                // })
+            });
+
+            $("form").submit((e) => {
+                e.preventDefault();
+            })
+
+            // $(".plist").sortable({
+            //     placeholder: "state-highlight",
+            //     forcePlaceholderSize: true,
+            //     change: (event, ui) => {
+            //         console.log("changed");
+            //     }
+            // })
+            // $(() => {
+            //     $('[data-toggle="tooltip"]').tooltip();
+            // })
+        </script>
+    </th:block>
+</body>
 
 </html>

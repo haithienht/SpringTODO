@@ -1,31 +1,77 @@
 .btn-outline-olive {
     color: #3d9970;
     border-color: #3d9970;
-  }
-  
-  .btn-outline-olive:hover {
+}
+
+.btn-outline-olive:hover {
     color: #ffffff;
     background-color: #3d9970;
     border-color: #3d9970;
-  }
-  
-  .btn-outline-olive:focus, .btn-outline-olive.focus {
+}
+
+.btn-outline-olive:focus,
+.btn-outline-olive.focus {
     box-shadow: 0 0 0 0 rgba(61, 153, 112, 1);
-  }
-  
-  .btn-outline-olive.disabled, .btn-outline-olive:disabled {
+}
+
+.btn-outline-olive.disabled,
+.btn-outline-olive:disabled {
     color: #3d9970;
     background-color: transparent;
-  }
-  
-  .btn-outline-olive:not(:disabled):not(.disabled):active, .btn-outline-olive:not(:disabled):not(.disabled).active,
-  .show > .btn-outline-olive.dropdown-toggle {
+}
+
+.btn-outline-olive:not(:disabled):not(.disabled):active,
+.btn-outline-olive:not(:disabled):not(.disabled).active,
+.show>.btn-outline-olive.dropdown-toggle {
     color: #ffffff;
     background-color: #3d9970;
     border-color: #3d9970;
-  }
-  
-  .btn-outline-olive:not(:disabled):not(.disabled):active:focus, .btn-outline-olive:not(:disabled):not(.disabled).active:focus,
-  .show > .btn-outline-olive.dropdown-toggle:focus {
+}
+
+.btn-outline-olive:not(:disabled):not(.disabled):active:focus,
+.btn-outline-olive:not(:disabled):not(.disabled).active:focus,
+.show>.btn-outline-olive.dropdown-toggle:focus {
     box-shadow: 0 0 0 0 rgba(61, 153, 112, 1);
-  }
+}
+
+.btn-olive {
+    color: #ffffff;
+    background-color: #3d9970;
+    border-color: #3d9970;
+    box-shadow: none;
+}
+
+.btn-olive:hover {
+    color: #ffffff;
+    background-color: #42a378;
+    border-color: #3d9970;
+}
+
+.btn-olive:focus,
+.btn-olive.focus {
+    color: #ffffff;
+    background-color: #42a378;
+    border-color: #3d9970;
+    box-shadow: none, 0 0 0 0 rgba(61, 153, 112, 0.5);
+}
+
+.btn-olive.disabled,
+.btn-olive:disabled {
+    color: #ffffff;
+    background-color: #3d9970;
+    border-color: #3d9970;
+}
+
+.btn-olive:not(:disabled):not(.disabled):active,
+.btn-olive:not(:disabled):not(.disabled).active,
+.show>.btn-olive.dropdown-toggle {
+    color: #ffffff;
+    background-color: #42a378;
+    border-color: #3d9970;
+}
+
+.btn-olive:not(:disabled):not(.disabled):active:focus,
+.btn-olive:not(:disabled):not(.disabled).active:focus,
+.show>.btn-olive.dropdown-toggle:focus {
+    box-shadow: 0 0 0 0 rgba(61, 153, 112, 0.5);
+}
