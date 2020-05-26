@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+   xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+   <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>TODO | Log in</title>
+      <!-- Tell the browser to be responsive to screen width -->
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+
+      <!-- Font Awesome -->
+      <link rel="stylesheet" th:href="@{/resources/plugins/fontawesome-free/css/all.min.css}">
+      <!-- Ionicons -->
+      <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+      <!-- icheck bootstrap -->
+      <link rel="stylesheet" th:href="@{/resources/plugins/icheck-bootstrap/icheck-bootstrap.min.css}">
+      <!-- Theme style -->
+      <link rel="stylesheet" th:href="@{/resources/css/adminlte.min.css}">
+      <link rel="stylesheet" th:href="@{/resources/css/other.css}">
+      <!-- Google Font: Source Sans Pro -->
+      <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+   </head>
+
+   <body class="hold-transition login-page" style="height: 40rem; background-color: rgb(243, 234, 217);">
+      <div class="login-box">
+         <div class="login-logo">
+            <a th:href="@{/}"><b>TODO</b> <sup style="top: -0.4rem;">HT</sup></a>
+         </div>
+         <!-- /.login-logo -->
+         <div class="card">
+            <div class="card-body">
+               <p>For testing: user1@mail.com | user1</p>
+               <div id="commonError" class="alert alert-danger" th:style="${param.error != null? '' : 'display:none'}">
+                  Invalid login information. Please check again.
+               </div>
+               <form id="frmLogin" th:action="@{/doLogin}" method="post" th:object="${user}">
+
+                  <div class="input-group mb-3">
+                     <div class="input-group-prepend">
+                        <div class="input-group-text text-olive">
+                           <i class="fas fa-envelope"></i>
+                        </div>
+                     </div>
+                     <input type="text" class="form-control" placeholder="Email" th:field="*{email}"
+                        data-toggle="tooltip" data-placement="right">
+
+                  </div>
+                  <div class="input-group mb-3">
+                     <div class="input-group-prepend">
+                        <div class="input-group-text text-olive">
+                           <span class="fas fa-lock"></span>
+                        </div>
+                     </div>
+                     <input type="password" class="form-control" placeholder="Password" th:field="*{password}"
+                        data-toggle="tooltip" data-placement="right">
+
+                  </div>
+                  <div class="row">
+                     <div class="col-8">
+                        <div class="icheck-olive">
+                           <input type="checkbox" id="remember" th:field="*{remember}">
+                           <label for="remember">
+                              Remember Me
+                           </label>
+                        </div>
+                     </div>
+                     <!-- /.col -->
+                     <div class="col-4">
+                        <button type="submit" class="btn btn-outline-olive btn-block">Sign In</button>
+                     </div>
+                     <!-- /.col -->
+                  </div>
+               </form>
+
+               <div class="social-auth-links text-center mb-3">
+                  <p>- OR -</p>
+                  <a href="#" class="btn btn-block btn-outline-olive">
+                     <i class="fab fa-google mr-2"></i> Sign in using Google
+                  </a>
+               </div>
+               <!-- /.social-auth-links -->
+               <div class="row">
+                  <p class="col-6 mb-1">
+                     <a href="forgot-password.html" class="text-olive">I forgot my password</a>
+                  </p>
+                  <p class="col-6 mb-1 text-right">
+                     <a href="register.html" class="text-olive">Register</a>
+                  </p>
+               </div>
+
+            </div>
+            <!-- /.login-card-body -->
+         </div>
+      </div>
+      <!-- /.login-box -->
+
+      <!-- jQuery -->
+      <script th:src="@{/resources/plugins/jquery/jquery.min.js}"></script>
+      <script th:src="@{/resources/plugins/jquery-validation/jquery.validate.min.js}"></script>
+      <script th:src="@{/resources/plugins/jquery-validation/additional-methods.min.js}"></script>
+      <!-- Bootstrap 4 -->
+      <script th:src="@{/resources/plugins/popper/umd/popper.min.js}"></script>
+      <script th:src="@{/resources/plugins/bootstrap/js/bootstrap.bundle.min.js}"></script>
+      <!-- AdminLTE App -->
+      <script th:src="@{/resources/js/adminlte.min.js}"></script>
+
+      <script>
+         $.validator.methods.email = function (value, element) {
+            return this.optional(element) || /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i.test(value);
+         }
+         function injectTrim(handler) {
+            return function (element, event) {
+               if (element.tagName === "TEXTAREA" || (element.tagName === "INPUT"
+                  && element.type !== "password")) {
+                  element.value = $.trim(element.value);
+               }
+               return handler.call(this, element, event);
+            };
+         }
+
+         function trimAll() {
+            $("form").find("input, textarea").each(function (i, e) {
+               $(e).val($(e).val().trim());
+            });
+         }
+
+         $("#frmLogin").validate({
+            ignore: [],
+            rules: {
+               email: {
+                  required: true,
+                  email: true,
+                  maxlength: 200
+               },
+               password: {
+                  required: true,
+                  minlength: 5,
+                  maxlength: 200
+               }
+            },
+            errorClass: "is-invalid",
+            validClass: "is-valid",
+            errorPlacement: function (error, element) {
+               element.attr("data-original-title", $(error).html());
+               // error.appendTo('#' + element.attr("id") + "Error");
+            },
+            highlight: function (element, errorClass, validClass) {
+               var elem = $(element);
+               elem.addClass(errorClass);
+               elem.removeClass(validClass);
+               elem.tooltip("show");
+            },
+
+            unhighlight: function (element, errorClass, validClass) {
+               var elem = $(element);
+               elem.removeClass(errorClass);
+               elem.addClass(validClass);
+               elem.attr("data-original-title", "");
+               elem.tooltip("hide");
+            },
+            errorElement: "li",
+            submitHandler: function (form, event) {
+               trimAll();
+               // event.preventDefault();
+               $("input").each((i, e) => {
+                  $(e).removeClass("is-invalid");
+                  $(e).removeClass("is-valid");
+                  $(e).attr("data-original-title", "");
+               });
+               $("#commonError").css("display", "none");
+               $("#commonError").html("");
+               if ($("#frmLogin").valid()) {
+                  form.submit();
+                  // var formData = $(form).serialize();
+                  // $("input").prop("disabled", true);
+                  // $.ajax({
+                  //    url: $(form).attr("action"),
+                  //    data: formData,
+                  //    type: "post",
+                  //    error: (result) => {
+                  //       $("input[type=password]").val("");
+                  //       // console.log(result);
+                  //       console.log(result.responseJSON);
+                  //       result.responseJSON.errors.forEach(item => {
+                  //          var input = $("#" + item.field);
+                  //          if (!input.hasClass("is-invalid")) {
+                  //             input.addClass("is-invalid");
+                  //          }
+                  //          if (input.attr("data-original-title") == "") {
+                  //             input.attr("data-original-title", item.defaultMessage);
+                  //          } else {
+                  //             input.attr("data-original-title", input.attr("data-original-title") + "\n" + item.defaultMessage);
+                  //          }
+                  //       });
+                  //       $("input").prop("disabled", null);
+                  //       // $("input[type=password]").removeClass("is-valid");
+                  //       // $('[data-toggle="tooltip"]').tooltip('show');
+                  //    },
+                  //    success: (result) => {
+                  //       console.log(result)
+                  //       $("input[type=password]").val("");
+                  //       if (result.length) {
+                  //          $("#commonError").css("display", null);
+                  //          $("#commonError").css("display", "block");
+                  //          var errorMsg = "<ul>";
+                  //          result.forEach(element => {
+                  //             errorMsg += "<li>" + element.defaultMessage + "</li>";
+                  //          });
+                  //          errorMsg += "</ul>";
+                  //          $("#commonError").html(errorMsg);
+                  //          $("input").prop("disabled", null);
+                  //       } else {
+                  //          console.log("success");
+
+                  //       }
+
+                  //    },
+                  // })
+               }
+
+
+            },
+            // callback: function () {
+
+            //     var form = $("#frmCategory");
+            //     if (form.valid()) {
+            //         form.submit();
+            //     } else {
+            //         return false;
+            //     }
+            // },
+            onfocusout: injectTrim($.validator.defaults.onfocusout),
+            complete: function (data) {
+
+            }
+         });
+
+         // $("#frmLogin").on("submit", (event) => {
+         //    event.preventDefault();
+         //    $("input").each((i, e) => {
+         //       if ($(e).hasClass("is-invalid")) {
+         //          $(e).removeClass("is-invalid");
+         //       }
+         //       if (!$(e).hasClass("is-valid")) {
+         //          $(e).addClass("is-valid");
+         //       }
+         //       $(e).attr("data-original-title", "");
+         //    });
+
+         //    var form = $("#frmLogin");
+         //    // var formData = $(this).serialize();
+         //    console.log(form.serialize());
+         //    $.ajax({
+         //       url: form.attr("action"),
+         //       data: form.serialize(),
+         //       method: "post",
+         //       error: (result) => {
+         //          $("input[type=password]").val("");
+         //          console.log(result);
+         //          console.log(result.responseJSON);
+         //          result.responseJSON.errors.forEach(item => {
+         //             var input = $("#" + item.field);
+         //             if (!input.hasClass("is-invalid")) {
+         //                input.addClass("is-invalid");
+         //             }
+         //             if (input.attr("data-original-title") == "") {
+         //                input.attr("data-original-title", item.defaultMessage);
+         //             } else {
+         //                input.attr("data-original-title", input.attr("data-original-title") + "\n" + item.defaultMessage);
+         //             }
+
+         //          });
+
+         //          $("input[type=password]").removeClass("is-valid");
+         //          $('[data-toggle="tooltip"]').tooltip('show');
+         //       },
+         //       success: (result) => {
+         //          $("input[type=password]").val("");
+         //          console.log(result);
+         //       },
+         //    })
+         // });
+
+         $(() => {
+            $('[data-toggle="tooltip"]').tooltip();
+         })
+      </script>
+
+   </body>
+
+</html>
