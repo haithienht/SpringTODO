@@ -50,6 +50,14 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<ProjectList> lists;
 
+    public Project() {
+
+    }
+
+    public Project(Long id) {
+        this.id = id;
+    }
+
     /**
      * @return Long return the id
      */

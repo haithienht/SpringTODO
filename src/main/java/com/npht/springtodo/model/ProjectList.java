@@ -1,5 +1,6 @@
 package com.npht.springtodo.model;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -19,7 +20,10 @@ import javax.persistence.TemporalType;
 
 @Entity
 @Table(name = "list")
-public class ProjectList {
+public class ProjectList implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -48,6 +52,14 @@ public class ProjectList {
 
     @OneToMany(mappedBy = "list", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<Task> tasks;
+
+    public ProjectList() {
+
+    }
+
+    public ProjectList(Long id) {
+        this.id = id;
+    }
 
     /**
      * @return Long return the id

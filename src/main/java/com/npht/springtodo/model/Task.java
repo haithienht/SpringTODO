@@ -64,6 +64,14 @@ public class Task implements Serializable {
     @OneToMany(mappedBy = "listTask", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<Task> taskItems;
 
+    public Task() {
+
+    }
+
+    public Task(Long id) {
+        this.id = id;
+    }
+
     public Task toJsonTask() {
         Task t = new Task();
         try {

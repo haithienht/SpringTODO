@@ -165,3 +165,26 @@ VALUES
     -- 12
     (3, NULL, 'L3 List Task 2', 'list', NULL, 0)
     ;
+
+CREATE TABLE list_order (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    project_id INT NOT NULL,
+    list_order TEXT,
+    CONSTRAINT fk_listorder_projectid_project_id FOREIGN KEY (project_id) REFERENCES project(id)
+);
+INSERT INTO list_order (project_id, list_order) 
+VALUES 
+(1, '1 3 2'), (2, '5 6 4');
+
+CREATE TABLE task_order (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    list_id INT,
+    task_id INT,
+    task_order TEXT,
+    CONSTRAINT fk_taskorder_listtid_list_id FOREIGN KEY (list_id) REFERENCES list(id),
+    CONSTRAINT fk_taskorder_tasktid_task_id FOREIGN KEY (task_id) REFERENCES task(id)
+);
+INSERT INTO task_order (list_id, task_id, task_order) 
+VALUES  (1, NULL, '1 4'), 
+        (2, NULL, '9 8 7'),
+        (NULL, 4, '6 5');

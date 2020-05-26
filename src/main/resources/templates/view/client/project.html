@@ -22,14 +22,16 @@
             background-color: #e4f7edf8;
         }
         
-        .ptask {
+        .ptask,
+        .pitem {
             list-style-type: none;
             margin: 0;
             padding: 0;
             width: 100%;
         }
         
-        .ptask>li {
+        .ptask>li,
+        .pitem>li {
             margin: 0 5px 5px 5px;
             padding: 5px;
             height: auto;
@@ -37,7 +39,8 @@
             background-color: #e4f7edf8;
         }
         
-        .ptask>li:hover {
+        .ptask>li:hover,
+        .pitem>li:hover {
             cursor: pointer;
             background-color: #f2faf6f8;
         }
@@ -48,20 +51,14 @@
             opacity: 0.4;
         }
         
-        .handle-list {
-            cursor: grab;
+        .handle-list,
+        .handle-task,
+        .handle-item {
+            cursor: move;
         }
         
-        .handle-list:active {
-            cursor: grabbing;
-        }
-        
-        .handle-task {
-            cursor: grab;
-        }
-        
-        .handle-task:active {
-            cursor: grabbing;
+        .input {
+            cursor: crosshair;
         }
     </style>
 </head>
@@ -71,7 +68,7 @@
         <div class="row mb-2">
             <div class="col-sm-6">
                 <h1 class="m-0 text-olive">
-                    <span class="input" th:text="${project.title}" th:id="${'p' + project.id}"></span>
+                    <span name="projectName" class="input" th:text="${project.title}" th:id="${'p' + project.id}"></span>
                     <button class="btn btn-olive" id="addList">Add new List</button>
                 </h1>
 
@@ -89,8 +86,8 @@
     </div>
     <!-- /.container-fluid -->
     <div layout:fragment="content">
-        <div id="project" class="row plist">
-            <div class="col-lg-3" th:each="list : ${lists}" th:id="${'list_' + list.id}">
+        <div id="project" class="row plist" th:target-id="${project.id}">
+            <div class="col-lg-3 list" th:each="list : ${lists}" th:list-id="${list.id}">
                 <div class="card card-olive card-outline">
                     <div class="card-header">
                         <i class="handle-list fas fa-bars"></i>
@@ -98,8 +95,8 @@
                         <i class="fas fa-check-circle text-success" th:style="${#lists.isEmpty(list.tasks.?[isDone!=true])? 'display:inline-block' : 'display:none'}"></i>
                     </div>
                     <div class="card-body py-1">
-                        <ul class="ptask">
-                            <li th:each="task : ${list.tasks}" class="task">
+                        <ul class="ptask" th:target-id="${list.id}">
+                            <li th:each="task : ${list.tasks}" class="task" th:task-id="${task.id}">
                                 <div>
                                     <i class="handle-task fas fa-bars"></i>
                                     <span class="title" th:text="${task.title}" th:id="${'t' + task.id}"></span>
@@ -138,9 +135,12 @@
                         </button>
                     </div> -->
                     <div class="modal-body">
-                        <form action="javascript:return null">
+                        <form>
                             <input type="hidden" name="id">
-                            <input type="text" class="form-control" name="title">
+                            <h4>
+                                <span class="input" name="title"></span>
+                            </h4>
+                            <!-- <input type="text" class="form-control" name="title"> -->
                             <hr>
                             <label for="detail">Detail</label>
                             <textarea class="form-control" name="detail" rows="3"></textarea>
@@ -161,7 +161,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <ul class="ptask" id="list">
+                            <ul class="pitem" id="list">
 
                             </ul>
                             <button class="btn btn-outline-olive" id="addNewModalTask"><i class="fas fa-plus-square"></i> Add new ...</button>
@@ -204,7 +204,7 @@
 
         <script>
             // TODO1: Parse list data from json
-            // TODO2: make modal to edit tasks
+            // TODO2: make modal to edit tasks -> update detail, add item, show progress
 
             // ========== FUNCTION / CONFIG =========
             var listModel = $("#model");
@@ -212,7 +212,7 @@
                 return "<li><i class='handle-task fas fa-bars'></i> <span id='t" + id + "'>New Task</span></li>";
             }
             var newTaskInList = (id, title, isDone) => {
-                return "<li class='form-inline'><i class='handle-task fas fa-bars'></i> " +
+                return "<li class='item form-inline' item-id='" + id + "'><i class='handle-item fas fa-bars'></i> " +
                     " <div class='custom-control custom-switch'>" +
                     "<input type='checkbox' id='done" + id + "' class='custom-control-input' " + (isDone === true ? "checked" : "") + ">" +
                     "<label class='custom-control-label' for='done" + id + "'></label></div>" +
@@ -221,7 +221,8 @@
 
             var project = $("#project");
 
-            function makeEditable(element) {
+            function makeEditable(element, updateMain) {
+                console.log("make Editable: " + $(element).attr("id") + "with updateMain=" + updateMain);
                 $(element).editable("./save", {
                     type: "text",
                     submit: "<button class='btn btn-outline-olive'><i class='fas fa-check'></i></button>",
@@ -230,16 +231,75 @@
                     inputcssclass: "form-control",
                     tooltip: "Click to edit...",
                     callback: (result, settings, submitdata) => {
+                        if (updateMain === true) {
+                            console.log("update main task: " + $(element).attr("id"));
+                            $("#project").find("#" + $(element).attr("id")).html(result);
+                        }
                         // console.log(result);
                     },
                 });
             }
 
             function makeSortable(element, type) {
+                console.log("makeSortable : " + $(element).attr("id") + " as " + type);
                 new Sortable(element, {
                     animation: 150,
                     ghostClass: "state-highlight",
-                    handle: '.handle-' + type
+                    handle: '.handle-' + type,
+                    onEnd: (event) => {
+                        if (event.oldIndex === event.newIndex) {
+                            return;
+                        }
+                        // console.log(event);
+                        let sortData = {};
+                        let sortText = "";
+                        let parent = $(event.item.parentNode);
+                        if (parent.hasClass('plist')) {
+                            parent.children(".list").each((i, e) => {
+                                sortData[i] = $(e).attr("list-id");
+                                sortText += $(e).attr("list-id") + " ";
+                            });
+                        } else if (parent.hasClass('ptask')) {
+                            parent.children(".task").each((i, e) => {
+                                sortData[i] = $(e).attr("task-id");
+                                sortText += $(e).attr("task-id") + " ";
+                            });
+                        } else {
+                            parent.children(".item").each((i, e) => {
+                                sortData[i] = $(e).attr("item-id");
+                                sortText += $(e).attr("item-id") + " ";
+                            });
+                        }
+                        sortText = sortText.trim();
+                        // console.log(sortData);
+                        // console.log(sortText);
+                        let targetId = "l";
+                        if (type === "task") {
+                            targetId = "t";
+                        } else if (type === "") {
+                            targetId = "i";
+                        }
+                        targetId += parent.attr("target-id");
+                        // console.log("target id: " + targetId);
+                        $.ajax({
+                            url: "reorder",
+                            type: "POST",
+                            data: {
+                                id: targetId,
+                                order: sortText
+                            },
+                            success: (result) => {
+                                if (result !== "success") {
+                                    console.log("reorder error");
+                                } else {
+                                    console.log("reorder " + result);
+                                }
+                            },
+                            error: () => {
+
+                            }
+                        })
+                    }
                 });
             }
 
@@ -285,21 +345,29 @@
                         if (result) {
                             let modal = $("#taskModal");
                             modal.find("[name='id']").val(result.id);
-                            modal.find("[name='title']").val(result.title);
+                            let title = modal.find("[name='title']");
+                            title.html(result.title);
+                            title.attr("id", "t" + result.id);
+                            makeEditable(title.get(), true);
                             modal.find("[name='detail']").html(result.detail);
                             modal.find("[name='type'][value='" + result.type + "']").click();
                             modal.find("[name='isDone']").attr("checked", result.isDone ? true : null);
                             modal.find("#list").html("");
+                            modal.find("#list").attr("target-id", result.id);
                             if (result.type == "list") {
                                 generateModalTaskList(result.taskItems, modal.find("#list"));
                                 modal.find(".input").each((i, e) => {
-                                    makeEditable(e);
-                                });
-                                modal.find("#list input[type='checkbox']").each((i, e) => {
-                                    makeTogglable(e);
+                                    makeEditable(e, true);
                                 });
                             }
-
+                            modal.find("input[type='checkbox']").each((i, e) => {
+                                if ($(e).attr("name") === "isDone") {
+                                    makeTogglable(e, "t" + modal.find("[name='id']").val());
+                                } else {
+                                    makeTogglable(e, $(e).parent().next("span").attr("id"));
+                                }
+                            });
+                            makeSortable(modal.find("#list")[0], "item");
                             modal.modal("show");
                             console.log(result);
                         } else {
@@ -319,13 +387,12 @@
             }
 
             function makeModalTaskListItem(id) {
-
+                // TODO
             }
 
-            function makeTogglable(element) {
+            function makeTogglable(element, id) {
                 let toggle = $(element);
                 toggle.on("click", () => {
-                    let id = toggle.parent().next("span").attr("id");
                     let isDone = toggle.is(":checked");
                     console.log(id + ":" + isDone);
                     $.ajax({
@@ -337,7 +404,12 @@
                         },
                         success: (result) => {
                             if (result) {
-                                console.log(result);
+                                if (isDone) {
+                                    toggleCheck(id, true);
+                                } else {
+                                    toggleCheck(id, false);
+                                }
+
                             } else {
                                 console.log("error after ajax success");
                             }
@@ -348,19 +420,50 @@
                     });
                 })
             }
+
+            function toggleCheck(id, status) {
+                console.log("Toggle checker: " + id + " to " + status);
+                let element = $("#project").find("#" + id);
+                let checker = element.next("i");
+
+                if (checker.length) {
+                    console.log("found checker");
+                    if (status) {
+                        checker.css("display", "inline-block");
+                    } else {
+                        checker.css("display", "none");
+                    }
+                } else {
+                    console.log("checker not found, create new");
+                    let newChecker = "<i class='fas fa-check-circle text-success' style='display:" + status ? "inline-block" : "none" + "'></i>";
+                    element.append(newChecker);
+                }
+            }
+
+            function refreshAfterCloseModal(id) {
+                clearList(id); // TODO
+                renderList(id); // TODO
+            }
+
+            function deleteTask(id) {
+
+            }
+
+            // TODO: add new collum list_order [list_id, list_order(varchar)], task_order[task_id, task_order(varchar)] to save order
             // ========== FUNCTION / CONFIG - END =========
 
             // ========== INITIALIZATION =============
-            $(".input").each((i, e) => {
+            $("#project").find(".input").each((i, e) => {
                 makeEditable(e);
             });
+            makeEditable($("[name='projectName']").get());
             $(".plist").each((i, e) => {
                 makeSortable(e, 'list');
             });
             $(".ptask").each((i, e) => {
                 makeSortable(e, 'task');
             });
-            $("[target-id]").each((i, e) => {
+            $("button[target-id]").each((i, e) => {
                 makeNewTaskButton(e);
             });
             $(".task").each((i, e) => {
@@ -373,7 +476,7 @@
                 let newList = listModel.clone();
                 newList.css("display", "block");
                 newList.attr("id", null);
-                newList.find("[target-id]").each((i, e) => {
+                newList.find("button[target-id]").each((i, e) => {
                     makeNewTaskButton(e);
                 });
                 newList.find(".ptask").each((i, e) => {
@@ -412,15 +515,6 @@
                 e.preventDefault();
             })
 
-            // $(".plist").sortable({
-            //     placeholder: "state-highlight",
-            //     forcePlaceholderSize: true,
-            //     change: (event, ui) => {
-            //         console.log("changed");
-            //     }
-            // })
-            // $(() => {
-            //     $('[data-toggle="tooltip"]').tooltip();
             // })
         </script>
     </th:block>
