@@ -100,23 +100,33 @@ public class ProjectController {
 
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "newTask", method = RequestMethod.POST)
-    public @ResponseBody String doAddNewTask(@RequestParam(name = "id") String id) {
-        String preId = id.substring(0, 5);
-        String sufIdstr = id.substring(5, id.length());
+    public @ResponseBody Task doAddNewTask(@RequestParam(name = "id") String id) {
+        String preId = id.substring(0, 1);
+        String sufIdstr = id.substring(1, id.length());
         System.out.println("id: \"" + id + "\" | preId: \"" + preId + "\" | sufId: \"" + sufIdstr + "\"");
         try {
             Long sufId = Long.parseLong(sufIdstr);
-            ProjectList l = listRepo.findById(sufId).orElse(null);
-            if (l == null) {
-                throw new Exception("Cannot find the list (id = " + sufId + ")");
-            }
             Task t = new Task();
-            t.setList(l);
-            t.setTitle("New Task");
+            if ("l".equals(preId)) {
+                ProjectList l = listRepo.findById(sufId).orElse(null);
+                if (l == null) {
+                    throw new Exception("Cannot find the list (id = " + sufId + ")");
+                }
+                t.setList(l);
+            } else if ("t".equals(preId)) {
+                Task task = taskRepo.findById(sufId).orElse(null);
+                if (task == null) {
+                    throw new Exception("Cannot find the task (id = " + sufId + ")");
+                }
+                t.setListTask(task);
+            } else {
+                throw new Exception("Wrong id");
+            }
             t.setType("item");
+            t.setTitle("New Task");
             t.setIsDone(false);
             taskRepo.save(t);
-            return t.getId().toString();
+            return t.toJsonTask();
         } catch (Exception e) {
             e.printStackTrace();
             return null;

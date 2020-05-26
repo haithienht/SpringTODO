@@ -2,8 +2,10 @@ package com.npht.springtodo.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.StringTokenizer;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -15,9 +17,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+
+import ch.qos.logback.core.subst.Tokenizer;
 
 @Entity
 @Table(name = "task")
@@ -64,6 +69,9 @@ public class Task implements Serializable {
     @OneToMany(mappedBy = "listTask", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     private List<Task> taskItems;
 
+    @OneToOne(mappedBy = "task", cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    private TaskOrder itemOrder;
+
     public Task() {
 
     }
@@ -87,7 +95,7 @@ public class Task implements Serializable {
             t.setUpdatedDate(updatedDate);
             t.setOrder(order);
             // Process "list" or "item"
-            if (type.equals("list")) {
+            if (taskItems != null && taskItems.size() > 0) {
                 List<Task> taskList = new ArrayList<>();
                 if (taskItems != null && taskItems.size() > 0) {
                     for (Task item : taskItems) {
@@ -99,6 +107,14 @@ public class Task implements Serializable {
                         taskItem.setType(item.getType());
                         taskList.add(taskItem);
                     }
+                }
+                if (itemOrder != null && !itemOrder.getOrder().trim().isEmpty()) {
+                    StringTokenizer token = new StringTokenizer(itemOrder.getOrder(), " ");
+                    List<Long> idList = new ArrayList<>();
+                    while (token.hasMoreTokens()) {
+                        idList.add(Long.parseLong(token.nextToken()));
+                    }
+                    taskList.sort(Comparator.comparing(tt -> idList.indexOf(tt.getId())));
                 }
                 t.setTaskItems(taskList);
             }
@@ -261,6 +277,14 @@ public class Task implements Serializable {
      */
     public void setTaskItems(List<Task> taskItems) {
         this.taskItems = taskItems;
+    }
+
+    public TaskOrder getItemOrder() {
+        return itemOrder;
+    }
+
+    public void setItemOrder(TaskOrder itemOrder) {
+        this.itemOrder = itemOrder;
     }
 
 }

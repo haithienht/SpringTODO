@@ -1,98 +1,100 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/client/main}">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/client/main}">
 
-<head>
-    <title>TODOHT - Dashboard</title>
-    <th:block layout:fragment="styles">
-        <!-- <link rel="stylesheet" th:href="@{/resources/plugins/jquery-ui/jquery-ui.min.css}"> -->
-    </th:block>
-    <style>
-        .plist {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
-        
-        .plist>li {
-            margin: 0 5px 5px 5px;
-            padding: 5px;
-            height: auto;
-            border: 1px darkgray solid;
-            background-color: #e4f7edf8;
-        }
-        
-        .ptask,
-        .pitem {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-        }
-        
-        .ptask>li,
-        .pitem>li {
-            margin: 0 5px 5px 5px;
-            padding: 5px;
-            height: auto;
-            border: 1px darkgray solid;
-            background-color: #e4f7edf8;
-        }
-        
-        .ptask>li:hover,
-        .pitem>li:hover {
-            cursor: pointer;
-            background-color: #f2faf6f8;
-        }
-        
-        .state-highlight {
-            background-color: lightyellow !important;
-            border: 1px black dashed !important;
-            opacity: 0.4;
-        }
-        
-        .handle-list,
-        .handle-task,
-        .handle-item {
-            cursor: move;
-        }
-        
-        .input {
-            cursor: crosshair;
-        }
-    </style>
-</head>
+    <head>
+        <title>TODOHT - Dashboard</title>
+        <th:block layout:fragment="styles">
+            <!-- <link rel="stylesheet" th:href="@{/resources/plugins/jquery-ui/jquery-ui.min.css}"> -->
+        </th:block>
+        <style>
+            .plist {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
 
-<body>
-    <div class="container-fluid" layout:fragment="header">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-                <h1 class="m-0 text-olive">
-                    <span name="projectName" class="input" th:text="${project.title}" th:id="${'p' + project.id}"></span>
-                    <button class="btn btn-olive" id="addList">Add new List</button>
-                </h1>
+            .plist>li {
+                margin: 0 5px 5px 5px;
+                padding: 5px;
+                height: auto;
+                border: 1px darkgray solid;
+                background-color: #e4f7edf8;
+            }
 
+            .ptask,
+            .pitem {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                width: 100%;
+            }
+
+            .ptask>li,
+            .pitem>li {
+                margin: 0 5px 5px 5px;
+                padding: 5px;
+                height: auto;
+                border: 1px darkgray solid;
+                background-color: #e4f7edf8;
+            }
+
+            .ptask>li:hover,
+            .pitem>li:hover {
+                cursor: pointer;
+                background-color: #f2faf6f8;
+            }
+
+            .state-highlight {
+                background-color: lightyellow !important;
+                border: 1px black dashed !important;
+                opacity: 0.4;
+            }
+
+            .handle-list,
+            .handle-task,
+            .handle-item {
+                cursor: move;
+            }
+
+            .input {
+                cursor: crosshair;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container-fluid" layout:fragment="header">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0 text-olive">
+                        <span name="projectName" class="input" th:text="${project.title}"
+                            th:id="${'p' + project.id}"></span>
+                        <button class="btn btn-olive" id="addList">Add new List</button>
+                    </h1>
+
+                </div>
+                <!-- /.col -->
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="dashboard">Home</a></li>
+                        <li class="breadcrumb-item active" th:text="${project.title}"></li>
+                    </ol>
+                </div>
+                <!-- /.col -->
             </div>
-            <!-- /.col -->
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="dashboard">Home</a></li>
-                    <li class="breadcrumb-item active" th:text="${project.title}"></li>
-                </ol>
-            </div>
-            <!-- /.col -->
+            <!-- /.row -->
         </div>
-        <!-- /.row -->
-    </div>
-    <!-- /.container-fluid -->
-    <div layout:fragment="content">
-        <div id="project" class="row plist" th:target-id="${project.id}">
-            <div class="col-lg-3 list" th:each="list : ${lists}" th:list-id="${list.id}">
-                <div class="card card-olive card-outline">
-                    <div class="card-header">
-                        <i class="handle-list fas fa-bars"></i>
-                        <span th:text="${list.title}" class="input" th:id="${'l' + list.id}"></span>
-                        <i class="fas fa-check-circle text-success" th:style="${#lists.isEmpty(list.tasks.?[isDone!=true])? 'display:inline-block' : 'display:none'}"></i>
+        <!-- /.container-fluid -->
+        <div layout:fragment="content">
+            <div id="project" class="row plist" th:target-id="${project.id}">
+                <div class="col-lg-3 list" th:each="list : ${lists}" th:list-id="${list.id}">
+                    <div class="card card-olive card-outline">
+                        <div class="card-header form-inline">
+                            <i class="handle-list fas fa-bars mr-1"></i>
+                            <span th:text="${list.title}" class="input" th:id="${'l' + list.id}"></span>
+                            <i class="fas fa-check-circle text-success" th:style="${#lists.isEmpty(list.tasks.?[isDone!=true])? 'display:inline-block' : 'display:none'}"></i>
                     </div>
                     <div class="card-body py-1">
                         <ul class="ptask" th:target-id="${list.id}">
@@ -103,21 +105,20 @@
                                     <i class="fas fa-check-circle text-success" th:style="${task.isDone ? 'display:inline-block' : 'display:none'}"></i>
                                 </div>
 
-                                <div th:if="${task.type eq 'list'}" class="taskList">
-                                    <ul th:if="${!#lists.isEmpty(task.taskItems)}">
+                                <div class="taskList">
+                                    <ul>
                                         <li th:each="item : ${task.taskItems}">
                                             <span th:text="${item.title}" th:id="${'t' + item.id}"></span>
                                             <i class="fas fa-check-circle text-success" th:style="${item.isDone ? 'display:inline-block' : 'display:none'}"></i>
                                         </li>
                                     </ul>
-                                    <i th:if=${#lists.isEmpty(task.taskItems)}>(No item yet)</i>
                                 </div>
 
                             </li>
                         </ul>
                     </div>
                     <div class="card-footer pt-1 pb-2">
-                        <button class="btn btn-outline-olive btn-block" th:target-id="${'list_' + list.id}"><i class="fas fa-plus-square"></i> Add new ...</button>
+                        <button class="btn btn-outline-olive btn-block" th:target-id="${'l' + list.id}"><i class="fas fa-plus-square"></i> Add new ...</button>
                     </div>
                 </div>
             </div>
@@ -208,11 +209,15 @@
 
             // ========== FUNCTION / CONFIG =========
             var listModel = $("#model");
-            var newTask = (id) => {
-                return "<li><i class='handle-task fas fa-bars'></i> <span id='t" + id + "'>New Task</span></li>";
+            var newTask = (id, title) => {
+                return "<li><i class='handle-task fas fa-bars'></i> <span id='t" + id + "'>" + title ? title : "New task" + "</span></li>";
             }
-            var newTaskInList = (id, title, isDone) => {
-                return "<li class='item form-inline' item-id='" + id + "'><i class='handle-item fas fa-bars'></i> " +
+            var newItem = (id, title, isDone) => {
+                return "<li><span id='" + id + "'>" + (title ? title : "New task") + "</span> " +
+                    " <i class='fas fa-check-circle text-success' style='display:" + (isDone ? "inline-block" : "none") + "'></i>" + "</li>";
+            }
+            var newItemInTask = (id, title, isDone) => {
+                return "<li class='item form-inline' item-id='" + id + "'><i class='handle-item fas fa-bars mr-1'></i> " +
                     " <div class='custom-control custom-switch'>" +
                     "<input type='checkbox' id='done" + id + "' class='custom-control-input' " + (isDone === true ? "checked" : "") + ">" +
                     "<label class='custom-control-label' for='done" + id + "'></label></div>" +
@@ -251,54 +256,19 @@
                             return;
                         }
                         // console.log(event);
-                        let sortData = {};
-                        let sortText = "";
-                        let parent = $(event.item.parentNode);
-                        if (parent.hasClass('plist')) {
-                            parent.children(".list").each((i, e) => {
-                                sortData[i] = $(e).attr("list-id");
-                                sortText += $(e).attr("list-id") + " ";
-                            });
-                        } else if (parent.hasClass('ptask')) {
-                            parent.children(".task").each((i, e) => {
-                                sortData[i] = $(e).attr("task-id");
-                                sortText += $(e).attr("task-id") + " ";
-                            });
-                        } else {
-                            parent.children(".item").each((i, e) => {
-                                sortData[i] = $(e).attr("item-id");
-                                sortText += $(e).attr("item-id") + " ";
-                            });
-                        }
-                        sortText = sortText.trim();
+                        // let sortData = {};
+                        let sortText = getOrder(event.item.parentNode);
                         // console.log(sortData);
                         // console.log(sortText);
                         let targetId = "l";
                         if (type === "task") {
                             targetId = "t";
-                        } else if (type === "") {
+                        } else if (type === "item") {
                             targetId = "i";
                         }
-                        targetId += parent.attr("target-id");
+                        targetId += $(event.item.parentNode).attr("target-id");
                         // console.log("target id: " + targetId);
-                        $.ajax({
-                            url: "reorder",
-                            type: "POST",
-                            data: {
-                                id: targetId,
-                                order: sortText
-                            },
-                            success: (result) => {
-                                if (result !== "success") {
-                                    console.log("reorder error");
-                                } else {
-                                    console.log("reorder " + result);
-                                }
-                            },
-                            error: () => {
-
-                            }
-                        })
+                        saveOrder(targetId, sortText);
                     }
                 });
             }
@@ -351,10 +321,15 @@
                             makeEditable(title.get(), true);
                             modal.find("[name='detail']").html(result.detail);
                             modal.find("[name='type'][value='" + result.type + "']").click();
-                            modal.find("[name='isDone']").attr("checked", result.isDone ? true : null);
+                            let checker = modal.find("[name='isDone']");
+                            if (result.isDone) {
+                                if (!checker.is(":checked")) checker.click();
+                            } else {
+                                if (checker.is(":checked")) checker.click();
+                            }
                             modal.find("#list").html("");
                             modal.find("#list").attr("target-id", result.id);
-                            if (result.type == "list") {
+                            if (result.taskItems && result.taskItems.length > 0) {
                                 generateModalTaskList(result.taskItems, modal.find("#list"));
                                 modal.find(".input").each((i, e) => {
                                     makeEditable(e, true);
@@ -381,9 +356,11 @@
             }
 
             function generateModalTaskList(list, destination) {
-                list.forEach(item => {
-                    destination.append(newTaskInList(item.id, item.title, item.isDone));
-                });
+                if (list) {
+                    list.forEach(item => {
+                        destination.append(newItemInTask(item.id, item.title, item.isDone));
+                    });
+                }
             }
 
             function makeModalTaskListItem(id) {
@@ -449,7 +426,58 @@
 
             }
 
-            // TODO: add new collum list_order [list_id, list_order(varchar)], task_order[task_id, task_order(varchar)] to save order
+            function getOrder(element) {
+                let sortText = "";
+                let parent = $(element);
+                if (parent.hasClass('plist')) {
+                    parent.children(".list").each((i, e) => {
+                        sortText += $(e).attr("list-id") + " ";
+                    });
+                } else if (parent.hasClass('ptask')) {
+                    parent.children(".task").each((i, e) => {
+                        sortText += $(e).attr("task-id") + " ";
+                    });
+                } else {
+                    parent.children(".item").each((i, e) => {
+                        sortText += $(e).attr("item-id") + " ";
+                    });
+                }
+                sortText = sortText.trim();
+                return sortText;
+            }
+
+            function saveOrder(id, sortText) {
+                $.ajax({
+                    url: "reorder",
+                    type: "POST",
+                    data: {
+                        id: id,
+                        order: sortText
+                    },
+                    success: (result) => {
+                        if (result !== "success") {
+                            console.log("save order error in controller");
+                        } else {
+                            console.log("save order " + result);
+                            if (id.substring(0, 1) === "i") {
+                                let task = $("[task-id='" + $("#list").attr("target-id") + "'");
+                                let target = task.find("ul");
+                                target.html("");
+                                $('#list').find(".input").each((i, e) => {
+                                    // console.log($(e).parent().find("input[type='checkbox']").is(":checked"));
+                                    target.append(newItem($(e).attr("id"), $(e).html(), $(e).parent().find("input[type='checkbox']").is(":checked")));
+                                });
+                                console.log("reordered " + result + " at main list");
+                            }
+                        }
+                    },
+                    error: () => {
+                        console.log("error");
+                    }
+                });
+            }
+
+
             // ========== FUNCTION / CONFIG - END =========
 
             // ========== INITIALIZATION =============
@@ -471,7 +499,7 @@
             });
             // ========== INITIALIZATION - END =============
 
-            // ========== custom functions ===========
+            // ========== ADD NEW FUNCTION ===========
             $("#addList").on("click", () => {
                 let newList = listModel.clone();
                 newList.css("display", "block");
@@ -490,31 +518,43 @@
             });
 
             $("#addNewModalTask").on("click", () => {
-                let id = $("#addNewModalTask").parent().find("[name='id']").val();
-                console.log(id);
-                // $.ajax({
-                //     url: "newTask",
-                //     data: {
-                //         id: id
-                //     },
-                //     method: "POST",
-                //     success: (result) => {
-                //         if (result) {
-                //             button.parent().parent().find("ul.ptask").append(newTask(result));
-                //         } else {
-                //             console.log("null");
-                //         }
-                //     },
-                //     error: () => {
-                //         console.log("error");
-                //     }
-                // })
+                let parentId = $("#addNewModalTask").parent().find("[name='id']").val();
+                $.ajax({
+                    url: "newTask",
+                    data: {
+                        id: "t" + parentId
+                    },
+                    method: "POST",
+                    success: (result) => {
+                        console.log(result)
+                        if (result) {
+                            $("#list").append(newItemInTask(result.id, result.title, false));
+
+                            let sortText = getOrder($("#list").get());
+                            console.log(sortText);
+                            saveOrder("i" + parentId, sortText);
+                            let toggle = $("[item-id='" + result.id + "'] input[type='checkbox']");
+                            makeTogglable(toggle.get(), "t" + result.id);
+                            makeEditable(toggle.parent().next("span").get(), true);
+                        } else {
+                            console.log("error in controller");
+                        }
+                    },
+                    error: () => {
+                        console.log("error");
+                    }
+                })
+
             });
 
             $("form").submit((e) => {
                 e.preventDefault();
             })
 
+            $("#taskModal").on("hidden.bs.modal", () => {
+                $("#taskModal").find("[name='isDone']").off("click");
+                $("#taskModal").find("ul").html("");
+            })
             // })
         </script>
     </th:block>
