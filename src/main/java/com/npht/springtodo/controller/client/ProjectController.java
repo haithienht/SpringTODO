@@ -12,11 +12,13 @@ import com.npht.springtodo.model.Project;
 import com.npht.springtodo.model.ProjectList;
 import com.npht.springtodo.model.Task;
 import com.npht.springtodo.model.TaskOrder;
+import com.npht.springtodo.model.User;
 import com.npht.springtodo.repository.ListOrderRepository;
 import com.npht.springtodo.repository.ProjectListRepository;
 import com.npht.springtodo.repository.ProjectRepository;
 import com.npht.springtodo.repository.TaskOrderRepository;
 import com.npht.springtodo.repository.TaskRepository;
+import com.npht.springtodo.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,6 +35,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ProjectController {
 
     @Autowired
+    private UserRepository userRepo;
+    @Autowired
     private ProjectRepository projectRepo;
     @Autowired
     private ProjectListRepository listRepo;
@@ -42,6 +46,9 @@ public class ProjectController {
     private ListOrderRepository listOrderRepo;
     @Autowired
     private TaskOrderRepository taskOrderRepo;
+
+    // TODO: make all add new function add id to order automatically (no need to save order again)
+
 
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "{projectId}", method = RequestMethod.GET)
@@ -56,14 +63,8 @@ public class ProjectController {
             if (!project.getUser().getEmail().equals(principal.getName())) {
                 throw new Exception("Logged-in user don't own this project.");
             }
+            // Re-order task and list
             List<ProjectList> lists = reorder(project.getLists(), project.getId());
-            // lists.sort(Comparator.comparing(ProjectList::getOrder,
-            // Comparator.nullsLast(Comparator.naturalOrder())));
-            // for (ProjectList projectList : lists) {
-            // projectList.getTasks()
-            // .sort(Comparator.comparing(Task::getOrder,
-            // Comparator.nullsLast(Comparator.naturalOrder())));
-            // }
             // Result
             model.addAttribute("project", project);
             model.addAttribute("lists", lists);
@@ -76,8 +77,55 @@ public class ProjectController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "newProject", method = RequestMethod.POST)
+    public @ResponseBody String doAddNewProject(@RequestParam(name = "title") String title, Principal principal) {
+        try {
+            title = title.trim();
+            User u = userRepo.findByEmail(principal.getName());
+            if (u != null) {
+                Project p = new Project();
+                p.setUser(u);
+                p.setTitle(title.isEmpty() ? "New Project" : title);
+                projectRepo.save(p);
+                return p.getId().toString();
+            } else {
+                throw new Exception("Cannot find logged-in user");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "newList", method = RequestMethod.POST)
+    public @ResponseBody ProjectList doAddNewList(@RequestParam(name = "id") String strId,
+            @RequestParam(name = "title") String title, Principal principal) {
+        try {
+            Long id = Long.parseLong(strId);
+            Project project = projectRepo.findById(id).orElse(null);
+            if (project == null) {
+                throw new Exception("Cannot find project (id=" + id + ")");
+            }
+            if (project.getUser().getEmail().equals(principal.getName())) {
+                ProjectList list = new ProjectList();
+                list.setTitle(title);
+                list.setProject(project);
+                listRepo.save(list);
+                return list.toJsonList();
+            } else {
+                throw new Exception("Logged-in user not own this");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "getTaskInfo", method = RequestMethod.POST, produces = "application/json")
     public @ResponseBody Task getTaskInfo(@RequestParam(name = "id") String id) {
+        // TODO: Check if user own this or not
         String preId = id.substring(0, 1);
         String sufIdstr = id.substring(1, id.length());
         System.out.println("id: \"" + id + "\" | preId: \"" + preId + "\" | sufId: \"" + sufIdstr + "\"");
@@ -101,6 +149,7 @@ public class ProjectController {
     @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "newTask", method = RequestMethod.POST)
     public @ResponseBody Task doAddNewTask(@RequestParam(name = "id") String id) {
+        // TODO: Check if user own this list or not
         String preId = id.substring(0, 1);
         String sufIdstr = id.substring(1, id.length());
         System.out.println("id: \"" + id + "\" | preId: \"" + preId + "\" | sufId: \"" + sufIdstr + "\"");
@@ -196,7 +245,6 @@ public class ProjectController {
                 }
             }
         } catch (Exception e) {
-            // System.out.println(e.getMessage());
             e.printStackTrace();
             return null;
         }
@@ -225,9 +273,20 @@ public class ProjectController {
     }
 
     @PreAuthorize("hasRole('USER')")
+    @RequestMapping(value = "remove")
+    public @ResponseBody String doRemove(@RequestParam(name = "id") String id) {
+        String preId = id.substring(0, 1);
+        String sufIdstr = id.substring(1, id.length());
+        System.out.println("id: \"" + id + "\" | preId: \"" + preId + "\" | sufId: \"" + sufIdstr + "\"");
+        // TODO: compelete remove function
+        return null;
+    }
+
+    @PreAuthorize("hasRole('USER')")
     @RequestMapping(value = "reorder", method = RequestMethod.POST)
     public @ResponseBody String doReorder(@RequestParam(name = "id") String id,
             @RequestParam(name = "order") String order) {
+        // TODO: Check if user own this or not
         String preId = id.substring(0, 1);
         String sufIdstr = id.substring(1, id.length());
         System.out.println(

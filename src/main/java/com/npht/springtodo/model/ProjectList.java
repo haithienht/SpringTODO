@@ -1,6 +1,7 @@
 package com.npht.springtodo.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -55,6 +56,27 @@ public class ProjectList implements Serializable {
 
     public ProjectList() {
 
+    }
+
+    public ProjectList toJsonList() {
+        ProjectList list = new ProjectList();
+        try {
+            if (id == null) {
+                throw new Exception("Cannot do this on null.");
+            }
+            list.setId(id);
+            list.setTitle(title);
+            list.setCreatedDate(createdDate);
+            list.setUpdatedDate(updatedDate);
+            list.setDetail(detail);
+            if (tasks!=null && tasks.size()>0) {
+             // TODO: Set task list here   
+            }
+            return list;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public ProjectList(Long id) {

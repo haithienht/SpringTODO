@@ -10,7 +10,13 @@
 		<div class="container-fluid" layout:fragment="header">
 			<div class="row mb-2">
 				<div class="col-sm-6">
-					<h1 class="m-0 text-olive">Dashboard</h1>
+					<h1 class="m-0 text-olive">
+						Dashboard
+						<button class="btn btn-olive" data-toggle="modal" data-target="#newProjectModal">
+							<i class="fas fa-file"></i>
+							New Project...
+						</button>
+					</h1>
 				</div><!-- /.col -->
 				<div class="col-sm-6">
 					<ol class="breadcrumb float-sm-right">
@@ -35,8 +41,58 @@
 				</div>
 			</div>
 
+			<div class="modal fade" id="newProjectModal" tabindex="-1" role="dialog" aria-hidden="true">
+				<div class="modal-dialog modal-md">
+					<div class="modal-content">
+						<div class="modal-body">
+							<h5>Enter title:</h5>
+							<form th:action="@{/project/newProject}" method="POST">
+								<div class="input-group">
+									<input class="form-control" name="title" type="text" value="New Project" required
+										maxlength="150" minlength="3">
+									<div class="input-group-append">
+										<button class="btn btn-outline-olive">OK</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
 		</div>
+		<th:block layout:fragment="scripts">
+			<script>
+				let form = $("#newProjectModal form");
+				form.on("submit", (e) => {
+					e.preventDefault();
+					let title = form.find("[name='title']").val();
+					let url = form.attr("action");
+					console.log(form);
+					if (title) {
+						$.ajax({
+							url: url,
+							type: "POST",
+							data: { title: title.trim() },
+							success: (result) => {
+								if (result) {
+									window.location.href = "./project/" + result;
+								} else {
+									console.log("error in controller");
+								}
+							},
+							error: () => {
+								// TODO throw error
+								console.log("error");
+							}
+						})
+					} else {
+						console.log("error");
+						// TODO throw error
+					}
 
+				});
+			</script>
+		</th:block>
 	</body>
 
 </html>

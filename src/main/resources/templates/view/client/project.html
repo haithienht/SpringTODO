@@ -124,7 +124,7 @@
             </div>
         </div>
 
-        <!-- Modal -->
+        <!-- Modal Task Edit -->
 
         <div class="modal fade" id="taskModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg" role="document">
@@ -175,10 +175,31 @@
                 </div>
             </div>
         </div>
+        <!-- Modal Task Edit = END -->
 
-        <!-- Modal = END -->
+        <!-- Modal New List -->
+        <div class="modal fade" id="newListModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="modal-dialog modal-md">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <form>
+                            <input type="hidden" name="id" th:value="${project.id}">
+                            <h5>Enter list title:</h5>
+                            <div class="input-group">
+                                <input class="form-control" name="title" type="text" value="New List" required
+                                    maxlength="150" minlength="3">
+                                <div class="input-group-append">
+                                    <button class="btn btn-outline-olive">OK</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal New List = END -->
 
-        <div class="col-lg-3" id="model" style="display: none;">
+        <div class="col-lg-3 list" id="model" style="display: none;">
             <div class="card card-olive card-outline">
                 <div class="card-header">
                     <i class="handle-list fas fa-bars"></i>
@@ -205,12 +226,12 @@
 
         <script>
             // TODO1: Parse list data from json
-            // TODO2: make modal to edit tasks -> update detail, add item, show progress
+            // TODO2: make modal to edit tasks -> update detail, show progress
 
             // ========== FUNCTION / CONFIG =========
             var listModel = $("#model");
             var newTask = (id, title) => {
-                return "<li><i class='handle-task fas fa-bars'></i> <span id='t" + id + "'>" + title ? title : "New task" + "</span></li>";
+                return "<li class='task' task-id='" + id + "'><i class='handle-task fas fa-bars'></i> <span class='title' id='t" + id + "'>" + (title ? title : "New task") + "</span> <i class='fas fa-check-circle text-success' style='display:none'></i></li>";
             }
             var newItem = (id, title, isDone) => {
                 return "<li><span id='" + id + "'>" + (title ? title : "New task") + "</span> " +
@@ -285,7 +306,11 @@
                         method: "POST",
                         success: (result) => {
                             if (result) {
-                                button.parent().parent().find("ul.ptask").append(newTask(result));
+                                console.log(result);
+                                let parent = button.parent().parent();
+                                let task = newTask(result.id, result.title);
+                                parent.find("ul.ptask").append(task);
+                                makeTaskEditable(parent.find("[task-id='" + result.id + "']").get());
                             } else {
                                 console.log("null");
                             }
@@ -477,7 +502,24 @@
                 });
             }
 
-
+            function addNewList(id, title) {
+                let newList = listModel.clone();
+                newList.css("display", "block");
+                newList.attr("id", null);
+                newList.attr("list-id", id);
+                newList.find("span.input").html(title);
+                newList.find("button[target-id]").attr("target-id", "l" + id);
+                newList.find("button[target-id]").each((i, e) => {
+                    makeNewTaskButton(e);
+                });
+                newList.find(".ptask").each((i, e) => {
+                    makeSortable(e, 'task');
+                });
+                newList.find(".input").each((i, e) => {
+                    makeEditable(e);
+                });
+                newList.appendTo(project);
+            }
             // ========== FUNCTION / CONFIG - END =========
 
             // ========== INITIALIZATION =============
@@ -497,23 +539,8 @@
             $(".task").each((i, e) => {
                 makeTaskEditable(e);
             });
-            // ========== INITIALIZATION - END =============
-
-            // ========== ADD NEW FUNCTION ===========
             $("#addList").on("click", () => {
-                let newList = listModel.clone();
-                newList.css("display", "block");
-                newList.attr("id", null);
-                newList.find("button[target-id]").each((i, e) => {
-                    makeNewTaskButton(e);
-                });
-                newList.find(".ptask").each((i, e) => {
-                    makeSortable(e, 'task');
-                });
-                newList.find(".input").each((i, e) => {
-                    makeEditable(e);
-                });
-                newList.appendTo(project);
+                $("#newListModal").modal("show");
                 // project.append(newList);
             });
 
@@ -547,15 +574,46 @@
 
             });
 
-            $("form").submit((e) => {
+            $("#taskModal form").submit((e) => {
                 e.preventDefault();
-            })
+            });
+
+            $("#newListModal form").submit((e) => {
+                e.preventDefault();
+                let form = $("#newListModal form");
+                let id = form.find("[name='id']").val(); // project id
+                let title = form.find("[name='title']").val().trim();
+                if (!title) {
+                    // TODO: throw error here
+                    return;
+                }
+                $.ajax({
+                    url: "newList",
+                    type: "POST",
+                    data: { id: id, title: title },
+                    success: (result) => {
+                        if (result) {
+                            addNewList(result.id, result.title);
+                            let sortText = getOrder($("[list-id='" + result.id + "']").get());
+                            saveOrder("l" + id, sortText);
+                            $("#newListModal").modal("hide");
+                        } else {
+                            console.log("error in controller");
+                        }
+                    },
+                    error: () => { console.log("error") }
+                })
+            });
 
             $("#taskModal").on("hidden.bs.modal", () => {
                 $("#taskModal").find("[name='isDone']").off("click");
                 $("#taskModal").find("ul").html("");
-            })
-            // })
+            });
+
+            $("#newListModal").on("hidden.bs.modal", () => {
+                $("#newListModal").find("[name='title']").val("New List");
+            });
+            // ========== INITIALIZATION - END =============
         </script>
     </th:block>
 </body>
